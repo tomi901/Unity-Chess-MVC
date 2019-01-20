@@ -571,6 +571,8 @@ MonoBehaviour:
   evenColor: {r: 1, g: 0.8457131, b: 0.5424528, a: 1}
   oddColor: {r: 0.7169812, g: 0.47006917, b: 0.33481666, a: 1}
   tilesContainer: {fileID: 275470346}
+  emptySpaceHighlightColor: {r: 0, g: 1, b: 0, a: 0.5}
+  occupiedSpaceHighlightColor: {r: 1, g: 0, b: 0, a: 0.5}
   piecePrefab: {fileID: 2153415321828765439, guid: c9d4d6bb91e6ada45b508cb6a66decac,
     type: 3}
   piecesContainer: {fileID: 1141418776}
