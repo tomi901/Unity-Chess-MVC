@@ -16,7 +16,7 @@ namespace Chess
 
         bool TryToMovePiece(BoardMovement movement);
 
-        bool MovementIsLegal(BoardMovement movement);
+        MovementAttemptResult GetMovementAttemptResult(BoardMovement movement);
 
     }
 

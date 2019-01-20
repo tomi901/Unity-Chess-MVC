@@ -69,7 +69,7 @@ namespace Chess
         public IEnumerable<BoardVector> GetAllLegalMovements(IBoard board, bool relativePosition = false)
         {
             IEnumerable<BoardVector> movements = GetAllPosibleRelativeMovements(board)
-                .Where(m => MovementIsLegalInBoard(board, m));
+                .Where(m => GetMovementAttemptResult(board, m).IsUnblockedOrOtherTeam());
 
             if (!relativePosition) movements = movements.Select(m => m + Coordinates);
 
@@ -107,13 +107,18 @@ namespace Chess
         /// <param name="board">The board this piece is in.</param>
         /// <param name="step">Where each step goes</param>
         /// <returns>Sequence of movements.</returns>
-        protected IEnumerable<BoardVector> GetBlockableLine(IBoard board, BoardVector step)
+        protected IEnumerable<BoardVector> GetBlockableLine(IBoard board, BoardVector step, int maxSteps = -1)
         {
+            int steps = 0;
             BoardVector movement = step;
-            while (MovementIsLegalInBoard(board, movement))
+            MovementAttemptResult attemptResult;
+            while ((attemptResult = GetMovementAttemptResult(board, movement)).IsUnblockedOrOtherTeam())
             {
                 yield return movement;
                 movement += step;
+
+                if ((maxSteps >= 0 && ++steps >= maxSteps) || attemptResult == MovementAttemptResult.OtherTeam)
+                    yield break;
             }
         }
 
@@ -153,9 +158,9 @@ namespace Chess
         }
 
 
-        public bool MovementIsLegalInBoard(IBoard board, BoardVector movement)
+        public MovementAttemptResult GetMovementAttemptResult(IBoard board, BoardVector movement)
         {
-            return board.MovementIsLegal(GetMovementToRelative(movement));
+            return board.GetMovementAttemptResult(GetMovementToRelative(movement));
         }
 
     }

@@ -45,12 +45,18 @@ namespace Chess
             return newGame;
         }
 
-        public bool MovementIsLegal(BoardMovement movement)
+        public MovementAttemptResult GetMovementAttemptResult(BoardMovement movement)
         {
             Piece movingPiece = Board[movement.from].CurrentPiece;
             Piece pieceInTargetPos = Board[movement.to].CurrentPiece;
 
-            return pieceInTargetPos == null || pieceInTargetPos.Team != movingPiece.Team;
+            if (pieceInTargetPos == null)
+            {
+                return MovementAttemptResult.Unblocked;
+            }
+            else return pieceInTargetPos.Team == movingPiece.Team ? 
+                    MovementAttemptResult.SameTeam : 
+                    MovementAttemptResult.OtherTeam;
         }
 
     }

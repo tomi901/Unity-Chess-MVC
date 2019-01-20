@@ -81,11 +81,11 @@ namespace Chess
         }
 
 
-        public bool MovementIsLegal(BoardMovement movement)
+        public MovementAttemptResult GetMovementAttemptResult(BoardMovement movement)
         {
-            if (!PositionIsInside(movement.from) || !PositionIsInside(movement.to)) return false;
+            if (!PositionIsInside(movement.from) || !PositionIsInside(movement.to)) return MovementAttemptResult.Unvalid;
 
-            return UsedForGame.MovementIsLegal(movement);
+            return UsedForGame.GetMovementAttemptResult(movement);
         }
 
 
