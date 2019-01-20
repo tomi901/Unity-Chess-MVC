@@ -18,7 +18,13 @@ namespace Chess
                 if (value == currentPiece) return;
 
                 currentPiece = value;
-                currentPiece.CurrentTile = this;
+
+                if (currentPiece != null)
+                {
+                    // Make sure we clear the previous tile to make sure it moves correctly
+                    currentPiece.CurrentTile?.ClearPiece();
+                    currentPiece.CurrentTile = this;
+                }
             }
         }
 
@@ -29,6 +35,11 @@ namespace Chess
         {
             Board = board;
             Coordinates = coordinates;
+        }
+
+        private void ClearPiece()
+        {
+            currentPiece = null;
         }
 
     }

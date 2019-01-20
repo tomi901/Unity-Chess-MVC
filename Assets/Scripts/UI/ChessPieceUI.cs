@@ -44,10 +44,7 @@ namespace Chess
             }
         }
 
-        public BoardVector Position
-        {
-            get => model.Coordinates;
-        }
+        public BoardVector Position => model.Coordinates;
 
         private PieceType pieceType = PieceType.Unknown;
         public PieceType Type
@@ -89,16 +86,18 @@ namespace Chess
         }
 
 
+        public void SetMovementTarget(BoardVector position)
+        {
+            model.TryToMoveTo(position);
+        }
+
+
+        // Model Listeners
+
         private void OnMoveToEventListener(object sender, PieceMovementArgs args)
         {
             UpdatePosition();
             // TODO: Animation
-        }
-
-
-        public void SetMovementTarget(BoardVector position)
-        {
-            model.TryToMoveTo(position);
         }
 
 

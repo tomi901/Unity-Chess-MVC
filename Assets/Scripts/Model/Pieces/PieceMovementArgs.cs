@@ -5,20 +5,21 @@ namespace Chess
     public class PieceMovementArgs : EventArgs
     {
 
-        public readonly BoardVector previousPosition;
-        public readonly BoardVector toPosition;
+        public readonly Tile fromTile, toTile;
 
-        public readonly IBoard movedToBoard = null;
-        public bool HasMovedToAnotherBoard => movedToBoard != null;
+        public BoardVector? From => fromTile?.Coordinates;
+        public BoardVector? To => toTile?.Coordinates;
 
-        public PieceMovementArgs(BoardVector previousPosition)
+        public IBoard FromBoard => fromTile?.Board;
+        public IBoard ToBoard => toTile?.Board;
+
+        public bool HasMovedToAnotherBoard => FromBoard != ToBoard;
+
+
+        public PieceMovementArgs(Tile fromTile, Tile toTile)
         {
-            this.previousPosition = previousPosition;
-        }
-
-        public PieceMovementArgs(IBoard moveToBoard)
-        {
-            movedToBoard = moveToBoard;
+            this.fromTile = fromTile;
+            this.toTile = toTile;
         }
 
     }

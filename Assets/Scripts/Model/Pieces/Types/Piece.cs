@@ -7,10 +7,22 @@ namespace Chess
     public abstract class Piece
     {
 
-        public Tile CurrentTile { get; internal set; }
+        private Tile currentTile;
+        public Tile CurrentTile
+        {
+            get => currentTile;
+            internal set
+            {
+                if (value == currentTile) return;
+
+                Tile previousTile = currentTile;
+                currentTile = value;
+                OnCoordinatesChanged(this, new PieceMovementArgs(previousTile, currentTile));
+            }
+        }
 
         public IBoard ContainingBoard => CurrentTile.Board;
-        public BoardVector Coordinates => CurrentTile.Coordinates;
+        public BoardVector Coordinates => CurrentTile?.Coordinates ?? default;
 
 
         public PieceTeam Team { get; set; }

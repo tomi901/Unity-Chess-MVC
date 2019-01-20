@@ -64,7 +64,10 @@ namespace Chess
 
         public void TryToMovePiece(BoardMovement movement)
         {
-            
+            // TODO: Check if the tile we are moving from has a piece and
+            // the movement is in the current legal movements list (TODO too)
+
+            this[movement.to].CurrentPiece = this[movement.from].CurrentPiece;
         }
 
 
