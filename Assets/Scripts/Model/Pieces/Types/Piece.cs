@@ -15,9 +15,11 @@ namespace Chess
             {
                 if (value == currentTile) return;
 
-                Tile previousTile = currentTile;
+                var moveArgs = new PieceMovementArgs(currentTile, value);
                 currentTile = value;
-                OnCoordinatesChanged(this, new PieceMovementArgs(previousTile, currentTile));
+
+                if (!moveArgs.HasMovedToAnotherBoard) OnMovementDone();
+                OnCoordinatesChanged(this, moveArgs);
             }
         }
 
