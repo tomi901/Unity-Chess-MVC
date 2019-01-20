@@ -34,11 +34,23 @@ namespace Chess
 
         public static ChessGame StartNew()
         {
-            return new ChessGame
+            ChessGame newGame = new ChessGame
             {
                 Board = new Board(StandardBoardVectorSize, standardStartingPieces),
                 CurrentTurn = PieceTeam.White,
             };
+
+            newGame.Board.UsedForGame = newGame;
+
+            return newGame;
+        }
+
+        public bool MovementIsLegal(BoardMovement movement)
+        {
+            Piece movingPiece = Board[movement.from].CurrentPiece;
+            Piece pieceInTargetPos = Board[movement.to].CurrentPiece;
+
+            return pieceInTargetPos == null || pieceInTargetPos.Team != movingPiece.Team;
         }
 
     }

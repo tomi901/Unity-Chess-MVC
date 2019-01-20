@@ -49,7 +49,7 @@ namespace Chess
                 model = value;
                 Size = model.BoardLength;
 
-                foreach (Piece piece in model)
+                foreach (Piece piece in model.Pieces)
                 {
                     ChessPieceUI newPiece = Instantiate(piecePrefab, PiecesContainer);
                     newPiece.Board = this;

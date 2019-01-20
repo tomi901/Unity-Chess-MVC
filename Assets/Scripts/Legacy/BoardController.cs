@@ -19,7 +19,7 @@ namespace Chess
             // Initialization
             view.Size = model.BoardLength;
 
-            foreach (Piece piece in model)
+            foreach (Piece piece in model.Pieces)
             {
                 IPieceView newPieceView = createNewPieceFunc.Invoke();
                 newPieceView.Board = view;

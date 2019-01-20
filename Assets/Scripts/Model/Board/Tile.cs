@@ -6,11 +6,30 @@ namespace Chess
     public class Tile
     {
 
-        public Board Board { get; private set; }
+        public IBoard Board { get; private set; }
+        public BoardVector Coordinates { get; private set; }
 
-        public BoardVector Position { get; private set; }
+        private Piece currentPiece;
+        public Piece CurrentPiece
+        {
+            get => currentPiece;
+            set
+            {
+                if (value == currentPiece) return;
 
-        public Piece CurrentPiece { get; private set; }
+                currentPiece = value;
+                currentPiece.CurrentTile = this;
+            }
+        }
+
+        public bool HasPiece => CurrentPiece != null;
+
+
+        public Tile(IBoard board, BoardVector coordinates)
+        {
+            Board = board;
+            Coordinates = coordinates;
+        }
 
     }
 

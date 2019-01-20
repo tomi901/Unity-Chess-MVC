@@ -3,16 +3,20 @@
 namespace Chess
 {
 
-    public interface IBoard : IEnumerable<Piece>
+    public interface IBoard : IEnumerable<Tile>
     {
 
-        Piece this[int x, int y] { get; }
+        Tile this[int x, int y] { get; }
 
-        Piece this[BoardVector coords] { get; }
+        Tile this[BoardVector coords] { get; }
+
+        IEnumerable<Piece> Pieces { get; }
 
         BoardVector BoardLength { get; }
 
-        bool MovementIsLegal(Piece movingPiece, BoardVector toPosition);
+        void TryToMovePiece(BoardMovement movement);
+
+        bool MovementIsLegal(BoardMovement movement);
 
     }
 

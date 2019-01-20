@@ -42,7 +42,7 @@ namespace Chess
 
         private void HandleSetPosition(object sender, PieceSetTargetMovementArgs e)
         {
-            model.Coordinates = e.moveTo;
+            //model.Coordinates = e.moveTo;
         }
 
     }

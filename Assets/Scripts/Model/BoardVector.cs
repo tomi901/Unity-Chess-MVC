@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections.Generic;
+
 
 namespace Chess
 {
@@ -6,6 +7,18 @@ namespace Chess
     {
 
         public const string horizontalCharacters = "abcdefgh";
+
+        public static IEnumerable<BoardVector> GetRange(BoardVector size)
+        {
+            for (int v = 0; v < size.vertical; v++)
+            {
+                for (int h = 0; h < size.horizontal; h++)
+                {
+                    yield return new BoardVector(h, v);
+                }
+            }
+        }
+
 
         public int horizontal, vertical;
 

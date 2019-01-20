@@ -98,7 +98,7 @@ namespace Chess
 
         public void SetMovementTarget(BoardVector position)
         {
-            model.MoveTo(position, true);
+            model.TryToMoveTo(position);
         }
 
 

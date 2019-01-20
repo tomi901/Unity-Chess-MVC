@@ -7,51 +7,40 @@ namespace Chess
     public abstract class Piece
     {
 
-        public Tile CurrentTile { get; private set; }
+        public Tile CurrentTile { get; internal set; }
 
-        public IBoard ContainingBoard { get; private set; }
+        public IBoard ContainingBoard => CurrentTile.Board;
+        public BoardVector Coordinates => CurrentTile.Coordinates;
 
-        private BoardVector coordinates;
-        public BoardVector Coordinates
-        {
-            get { return coordinates; }
-            set
-            {
-                if (coordinates == value) return;
-
-                BoardVector prevCoords = coordinates;
-                coordinates = value;
-                OnCoordinatesChanged(this, new PieceMovementArgs(prevCoords));
-            }
-        }
-
-        public event EventHandler<PieceMovementArgs> OnCoordinatesChanged = (o, e) => { };
 
         public PieceTeam Team { get; set; }
-
         public abstract PieceType Type { get; }
 
 
-        public void SetBoard(IBoard board, BoardVector newPosition)
-        {
-            if (board == ContainingBoard) return;
+        public event EventHandler<PieceMovementArgs> OnCoordinatesChanged = (o, e) => { };
+        public event EventHandler<PieceSetTargetMovementArgs> OnMovementTargetSet = (o, e) => { };
 
-            ContainingBoard = board;
-            coordinates = newPosition;
-            OnCoordinatesChanged(this, new PieceMovementArgs(board));
+
+        public BoardMovement GetMovementTo(BoardVector toPosition)
+        {
+            return new BoardMovement(Coordinates, toPosition);
+        }
+
+        public BoardMovement GetMovementToRelative(BoardVector relativeMovement)
+        {
+            return new BoardMovement(Coordinates, Coordinates + relativeMovement);
         }
 
 
-        public void MoveTo(BoardVector position, bool checkLegal = true)
+        public void TryToMoveTo(BoardVector position)
         {
-            // First if we have to check if the movement is legal, make sure we are moving to a legal position
-            if (checkLegal && !GetAllLegalMovements(true).Contains(position - Coordinates))
-            {
-                return;
-            }
+            ContainingBoard.TryToMovePiece(GetMovementTo(position));
+        }
 
-            Coordinates = position;
-            OnMovementDone();
+
+        protected virtual void OnMovementDone()
+        {
+
         }
 
 
@@ -154,13 +143,7 @@ namespace Chess
 
         public bool MovementIsLegalInBoard(IBoard board, BoardVector movement)
         {
-            return board.MovementIsLegal(this, Coordinates + movement);
-        }
-
-
-        protected virtual void OnMovementDone()
-        {
-
+            return board.MovementIsLegal(GetMovementToRelative(movement));
         }
 
     }

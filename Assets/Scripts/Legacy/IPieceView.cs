@@ -2,10 +2,6 @@
 
 namespace Chess
 {
-    public class PieceSetTargetMovementArgs
-    {
-        public readonly BoardVector moveTo;
-    }
 
     public interface IPieceView
     {
