@@ -17,14 +17,14 @@ namespace Chess
             {
                 if (value == currentPiece) return;
 
-                currentPiece = value;
-
-                if (currentPiece != null)
+                if (value != null)
                 {
                     // Make sure we clear the previous tile to make sure it moves correctly
-                    currentPiece.CurrentTile?.ClearPiece();
-                    currentPiece.CurrentTile = this;
+                    value.CurrentTile?.ClearPiece();
+                    value.CurrentTile = this;
                 }
+
+                currentPiece = value;
             }
         }
 

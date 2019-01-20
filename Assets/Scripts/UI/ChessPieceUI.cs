@@ -27,7 +27,8 @@ namespace Chess
 
                 UpdatePosition();
 
-                value.OnCoordinatesChanged += OnMoveToEventListener;
+                model.OnCoordinatesChanged += OnMoveToEventListener;
+                model.OnCapture += OnCaptureEventListener;
             }
         }
 
@@ -98,6 +99,11 @@ namespace Chess
         {
             UpdatePosition();
             // TODO: Animation
+        }
+
+        private void OnCaptureEventListener(object sender, System.EventArgs args)
+        {
+            Destroy(gameObject);
         }
 
 

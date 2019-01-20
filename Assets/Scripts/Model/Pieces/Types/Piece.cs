@@ -18,6 +18,8 @@ namespace Chess
                 var moveArgs = new PieceMovementArgs(currentTile, value);
                 currentTile = value;
 
+                currentTile?.CurrentPiece?.Capture(this);
+
                 if (!moveArgs.HasMovedToAnotherBoard) OnMovementDone();
                 OnCoordinatesChanged(this, moveArgs);
             }
@@ -33,6 +35,7 @@ namespace Chess
 
         public event EventHandler<PieceMovementArgs> OnCoordinatesChanged = (o, e) => { };
         public event EventHandler<PieceSetTargetMovementArgs> OnMovementTargetSet = (o, e) => { };
+        public event EventHandler<EventArgs> OnCapture = (o, e) => { };
 
 
         public BoardMovement GetMovementTo(BoardVector toPosition)
@@ -43,6 +46,12 @@ namespace Chess
         public BoardMovement GetMovementToRelative(BoardVector relativeMovement)
         {
             return new BoardMovement(Coordinates, Coordinates + relativeMovement);
+        }
+
+
+        private void Capture(Piece byPiece)
+        {
+            OnCapture(this, EventArgs.Empty);
         }
 
 
