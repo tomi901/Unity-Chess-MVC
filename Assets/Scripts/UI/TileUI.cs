@@ -12,9 +12,16 @@ namespace Chess
         public Color MainColor { get => mainGraphic.color; set => mainGraphic.color = value; }
 
         [SerializeField]
-        private GameObject highlightGraphic = null;
+        private Graphic highlightGraphic = null;
 
-        public bool Highlighted { get => highlightGraphic.activeSelf; set => highlightGraphic.SetActive(value); }
+
+        public Color HighlightColor { get => highlightGraphic.color; set => highlightGraphic.color = value; }
+
+        public bool Highlighted
+        {
+            get => highlightGraphic.gameObject.activeSelf;
+            set => highlightGraphic.gameObject.SetActive(value);
+        }
 
     }
 }

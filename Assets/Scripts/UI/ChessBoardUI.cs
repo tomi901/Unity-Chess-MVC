@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using UnityEngine.UI;
 
 using Chess.Utils;
+
 
 namespace Chess
 {
@@ -12,7 +14,7 @@ namespace Chess
         private GridLayoutGroup gridLayoutGroup;
         public Vector2 TileSize => gridLayoutGroup.cellSize;
 
-        [Space]
+        [Header("Tiles")]
 
         [SerializeField]
         private TileUI tilePrefab = null;
@@ -24,6 +26,14 @@ namespace Chess
         private RectTransform tilesContainer = null;
 
         [Space]
+
+        [SerializeField]
+        private Color emptySpaceHighlightColor = new Color(1, 1, 1, 0.5f);
+        [SerializeField]
+        private Color occupiedSpaceHighlightColor = new Color(1, 1, 1, 0.5f);
+
+
+        [Header("Pieces")]
 
         [SerializeField]
         private ChessPieceUI piecePrefab = null;
@@ -116,9 +126,11 @@ namespace Chess
         {
             ResetHighlightedTiles();
 
-            foreach (BoardVector tile in tiles)
+            foreach (BoardVector position in tiles)
             {
-                this[tile].Highlighted = true;
+                TileUI tile = this[position];
+                tile.Highlighted = true;
+                tile.HighlightColor = model[position].HasPiece ? occupiedSpaceHighlightColor : emptySpaceHighlightColor;
             }
         }
 

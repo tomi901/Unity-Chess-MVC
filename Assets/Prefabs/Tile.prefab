@@ -60,7 +60,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainGraphic: {fileID: 5068478621623389307}
-  highlightGraphic: {fileID: 8921734658859286233}
+  highlightGraphic: {fileID: 6544607298060217795}
 --- !u!114 &5068478621623389307
 MonoBehaviour:
   m_ObjectHideFlags: 0
