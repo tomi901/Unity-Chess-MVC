@@ -14,7 +14,7 @@ namespace Chess
 
         BoardVector BoardLength { get; }
 
-        void TryToMovePiece(BoardMovement movement);
+        bool TryToMovePiece(BoardMovement movement);
 
         bool MovementIsLegal(BoardMovement movement);
 
