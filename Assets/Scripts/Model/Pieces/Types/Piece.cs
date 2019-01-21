@@ -111,6 +111,11 @@ namespace Chess
         }
 
 
+        protected IEnumerable<BoardVector> GetBlockableLine(IBoard board, BoardVector step, int maxSteps = -1)
+        {
+            return GetBlockableLine(board, step, MovementAttemptResults.IsUnblockedOrOtherTeam, maxSteps);
+        }
+
         /// <summary>
         /// Returns a sequence of movements in a straigth line, if the line is blocked (Not valid)
         /// it stops returning movements.
@@ -118,12 +123,15 @@ namespace Chess
         /// <param name="board">The board this piece is in.</param>
         /// <param name="step">Where each step goes</param>
         /// <returns>Sequence of movements.</returns>
-        protected IEnumerable<BoardVector> GetBlockableLine(IBoard board, BoardVector step, int maxSteps = -1)
+        protected IEnumerable<BoardVector> GetBlockableLine(IBoard board, BoardVector step, 
+            Predicate<MovementAttemptResult> resultFilter, int maxSteps = -1)
         {
+            if (resultFilter == null) yield break;
+
             int steps = 0;
             BoardVector movement = step;
             MovementAttemptResult attemptResult;
-            while ((attemptResult = GetMovementAttemptResult(board, movement)).IsUnblockedOrOtherTeam())
+            while (resultFilter(attemptResult = GetMovementAttemptResult(board, movement)))
             {
                 yield return movement;
                 movement += step;

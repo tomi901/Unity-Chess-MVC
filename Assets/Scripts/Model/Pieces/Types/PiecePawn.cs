@@ -18,9 +18,18 @@ namespace Chess
         protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(IBoard board)
         {
             foreach (BoardVector movement in GetBlockableLine(board, GetTransformedMovementForTeam(0, 1),
-                HasMoved ? 1 : 2))
+                result => result == MovementAttemptResult.Unblocked, HasMoved ? 1 : 2))
             {
                 yield return movement;
+            }
+
+            for (int h = -1; h <= 1; h += 2)
+            {
+                BoardVector movement = GetTransformedMovementForTeam(h, 1);
+                if (board.GetMovementAttemptResult(GetMovementToRelative(movement)) == MovementAttemptResult.OtherTeam)
+                {
+                    yield return movement;
+                }
             }
         }
 
