@@ -1,4 +1,6 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Chess
 {
@@ -9,7 +11,7 @@ namespace Chess
         public static BoardVector StandardBoardVectorSize => new BoardVector(StandardBoardSize);
 
         private static readonly IPieceEntry[] standardStartingPieces =
-{
+        {
             // White team
             new RowPiecesEntry<PiecePawn>(PieceTeam.White, 1),
             new MirroredPiecesEntry<PieceRook>(PieceTeam.White, 0, 0),
@@ -27,36 +29,93 @@ namespace Chess
         };
 
 
-        public PieceTeam CurrentTurn { get; private set; }
+        private PieceTeam currentTurn;
+        public PieceTeam CurrentTurnTeam
+        {
+            get => currentTurn;
+            private set
+            {
+                if (value == currentTurn) return;
+
+                currentTurn = value;
+                OnTurnChange(this, EventArgs.Empty);
+            }
+        }
 
         public Board Board { get; private set; }
 
 
+        public event EventHandler OnTurnChange = (o, e) => { };
+
+
+        public ChessGame(BoardVector boardSize, IEnumerable<IPieceEntry> startingPieces,
+            PieceTeam startingTurn = PieceTeam.White)
+        {
+            Board = new Board(boardSize, startingPieces)
+            {
+                UsedForGame = this
+            };
+            CurrentTurnTeam = startingTurn;
+        }
+
         public static ChessGame StartNew()
         {
-            ChessGame newGame = new ChessGame
-            {
-                Board = new Board(StandardBoardVectorSize, standardStartingPieces),
-                CurrentTurn = PieceTeam.White,
-            };
-
-            newGame.Board.UsedForGame = newGame;
-
-            return newGame;
+            return new ChessGame(StandardBoardVectorSize, standardStartingPieces);
         }
+
 
         public MovementAttemptResult GetMovementAttemptResult(BoardMovement movement)
         {
             Piece movingPiece = Board[movement.from].CurrentPiece;
-            Piece pieceInTargetPos = Board[movement.to].CurrentPiece;
-
-            if (pieceInTargetPos == null)
+            if (!PieceIsInTurn(movingPiece))
             {
-                return MovementAttemptResult.Unblocked;
+                return MovementAttemptResult.NotInTurn;
             }
-            else return pieceInTargetPos.Team == movingPiece.Team ? 
-                    MovementAttemptResult.SameTeam : 
-                    MovementAttemptResult.OtherTeam;
+
+            Piece pieceInTargetPos = Board[movement.to].CurrentPiece;
+            switch (pieceInTargetPos)
+            {
+                case null:
+                    return MovementAttemptResult.Unblocked;
+                default:
+                    return pieceInTargetPos.Team == movingPiece.Team ?
+                                MovementAttemptResult.SameTeam :
+                                MovementAttemptResult.OtherTeam;
+            }
+        }
+
+
+        public bool TryToDoMovement(BoardMovement movement)
+        {
+            Piece currentPiece = Board[movement.from].CurrentPiece;
+            // TODO: Check if the movement is in the current legal movements cached list
+            if (currentPiece != null && PieceIsInTurn(currentPiece) &&
+                currentPiece.GetAllLegalMovements(Board).Contains(movement.to))
+            {
+                Board[movement.to].CurrentPiece = currentPiece;
+                NextTurn();
+                return true;
+            }
+            else return false;
+        }
+
+        private void NextTurn()
+        {
+            switch (CurrentTurnTeam)
+            {
+                case PieceTeam.White:
+                    CurrentTurnTeam = PieceTeam.Black;
+                    break;
+                default:
+                case PieceTeam.Black:
+                    CurrentTurnTeam = PieceTeam.White;
+                    break;
+            }
+        }
+
+        public bool PieceIsInTurn(Piece piece)
+        {
+            return piece.Team == CurrentTurnTeam;
         }
 
     }

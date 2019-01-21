@@ -7,6 +7,7 @@ namespace Chess
         Unblocked,
         SameTeam,
         OtherTeam,
+        NotInTurn,
     }
 
     public static class MovementAttemptResults

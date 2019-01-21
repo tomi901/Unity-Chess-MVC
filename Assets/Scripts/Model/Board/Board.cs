@@ -64,14 +64,7 @@ namespace Chess
 
         public bool TryToMovePiece(BoardMovement movement)
         {
-            Piece currentPiece = this[movement.from].CurrentPiece;
-            if (currentPiece == null || !currentPiece.GetAllLegalMovements(this).Contains(movement.to))
-                return false;
-            // TODO: Check if the tile we are moving from has a piece and
-            // the movement is in the current legal movements list (TODO too)
-
-            this[movement.to].CurrentPiece = currentPiece;
-            return true;
+            return UsedForGame.TryToDoMovement(movement);
         }
 
 
