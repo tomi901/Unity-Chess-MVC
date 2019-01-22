@@ -10,8 +10,8 @@ namespace Chess
         public BoardVector? From => fromTile?.Coordinates;
         public BoardVector? To => toTile?.Coordinates;
 
-        public IBoard FromBoard => fromTile?.Board;
-        public IBoard ToBoard => toTile?.Board;
+        public Board FromBoard => fromTile?.Board;
+        public Board ToBoard => toTile?.Board;
 
         public bool HasMovedToAnotherBoard => FromBoard != ToBoard;
 

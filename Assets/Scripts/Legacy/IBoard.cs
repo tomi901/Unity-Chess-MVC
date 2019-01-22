@@ -2,7 +2,6 @@
 
 namespace Chess
 {
-
     public interface IBoard : IEnumerable<Tile>
     {
 
@@ -19,5 +18,4 @@ namespace Chess
         MovementAttemptResult GetMovementAttemptResult(BoardMovement movement);
 
     }
-
 }

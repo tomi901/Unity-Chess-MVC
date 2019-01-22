@@ -25,7 +25,7 @@ namespace Chess
             }
         }
 
-        public IBoard ContainingBoard => CurrentTile.Board;
+        public Board ContainingBoard => CurrentTile.Board;
         public BoardVector Coordinates => CurrentTile?.Coordinates ?? default;
 
 
@@ -66,19 +66,20 @@ namespace Chess
 
         }
 
-
-        public IEnumerable<BoardVector> GetAllLegalMovements(bool relativePosition = false)
+        public IEnumerable<BoardMovement> GetAllLegalMovements()
         {
-            return GetAllLegalMovements(ContainingBoard, relativePosition);
+            return GetAllLegalMovements(true).Select(GetMovementToRelative);
         }
+
 
         /// <summary>
         /// Returns all movements in a local way in this piece in a given board that this piece can do.
         /// </summary>
         /// <param name="board">The board this piece is in.</param>
         /// <returns>All valid of movements.</returns>
-        public IEnumerable<BoardVector> GetAllLegalMovements(IBoard board, bool relativePosition = false)
+        private IEnumerable<BoardVector> GetAllLegalMovements(bool relativePosition)
         {
+            Board board = ContainingBoard;
             IEnumerable<BoardVector> movements = GetAllPosibleRelativeMovements(board)
                 .Where(m => GetMovementAttemptResult(board, m).IsUnblockedOrOtherTeam());
 
@@ -87,7 +88,7 @@ namespace Chess
             return movements;
         }
 
-        protected abstract IEnumerable<BoardVector> GetAllPosibleRelativeMovements(IBoard board);
+        protected abstract IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board);
 
 
         protected virtual BoardVector GetTransformedMovementForTeam(int horizontal, int vertical)
@@ -111,7 +112,7 @@ namespace Chess
         }
 
 
-        protected IEnumerable<BoardVector> GetBlockableLine(IBoard board, BoardVector step, int maxSteps = -1)
+        protected IEnumerable<BoardVector> GetBlockableLine(Board board, BoardVector step, int maxSteps = -1)
         {
             return GetBlockableLine(board, step, MovementAttemptResults.IsUnblockedOrOtherTeam, maxSteps);
         }
@@ -123,7 +124,7 @@ namespace Chess
         /// <param name="board">The board this piece is in.</param>
         /// <param name="step">Where each step goes</param>
         /// <returns>Sequence of movements.</returns>
-        protected IEnumerable<BoardVector> GetBlockableLine(IBoard board, BoardVector step, 
+        protected IEnumerable<BoardVector> GetBlockableLine(Board board, BoardVector step, 
             Predicate<MovementAttemptResult> resultFilter, int maxSteps = -1)
         {
             if (resultFilter == null) yield break;
@@ -142,7 +143,7 @@ namespace Chess
         }
 
 
-        protected IEnumerable<BoardVector> GetHorizontalAndVerticalLines(IBoard board)
+        protected IEnumerable<BoardVector> GetHorizontalAndVerticalLines(Board board)
         {
             foreach (BoardVector movement in GetBlockableLine(board, new BoardVector(0, 1)))
             {
@@ -162,7 +163,7 @@ namespace Chess
             }
         }
 
-        protected IEnumerable<BoardVector> GetDiagonalLines(IBoard board)
+        protected IEnumerable<BoardVector> GetDiagonalLines(Board board)
         {
             for (int x = -1; x <= 1; x += 2)
             {
@@ -177,7 +178,7 @@ namespace Chess
         }
 
 
-        public MovementAttemptResult GetMovementAttemptResult(IBoard board, BoardVector movement)
+        public MovementAttemptResult GetMovementAttemptResult(Board board, BoardVector movement)
         {
             return board.GetMovementAttemptResult(GetMovementToRelative(movement));
         }

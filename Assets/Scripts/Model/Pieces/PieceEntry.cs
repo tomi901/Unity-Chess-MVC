@@ -19,7 +19,7 @@ namespace Chess
 
     public interface IPieceEntry
     {
-        IEnumerable<PiecePlacement> GetPiecePlacements(IBoard forBoard);
+        IEnumerable<PiecePlacement> GetPiecePlacements(Board forBoard);
     }
 
     public abstract class PieceEntry<PieceT> : IPieceEntry where PieceT : Piece, new()
@@ -27,7 +27,7 @@ namespace Chess
 
         public readonly PieceTeam team;
 
-        public abstract IEnumerable<PiecePlacement> GetPiecePlacements(IBoard forBoard);
+        public abstract IEnumerable<PiecePlacement> GetPiecePlacements(Board forBoard);
 
         public PieceEntry(PieceTeam team)
         {
@@ -56,7 +56,7 @@ namespace Chess
             this.position = startPosition;
         }
 
-        public override IEnumerable<PiecePlacement> GetPiecePlacements(IBoard forBoard)
+        public override IEnumerable<PiecePlacement> GetPiecePlacements(Board forBoard)
         {
             yield return GetNewPlacement(position);
         }
@@ -72,7 +72,7 @@ namespace Chess
             this.height = height;
         }
 
-        public override IEnumerable<PiecePlacement> GetPiecePlacements(IBoard forBoard)
+        public override IEnumerable<PiecePlacement> GetPiecePlacements(Board forBoard)
         {
             int hLength = forBoard.BoardLength.horizontal;
             for (int h = 0; h < hLength; h++)
@@ -97,7 +97,7 @@ namespace Chess
             this.position = position;
         }
 
-        public override IEnumerable<PiecePlacement> GetPiecePlacements(IBoard forBoard)
+        public override IEnumerable<PiecePlacement> GetPiecePlacements(Board forBoard)
         {
             yield return GetNewPlacement(position);
             yield return GetNewPlacement(new BoardVector(forBoard.BoardLength.horizontal - position.horizontal - 1,

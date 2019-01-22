@@ -111,7 +111,7 @@ namespace Chess
 
         public void OnDragBegin()
         {
-            board.HighlightTiles(model.GetAllLegalMovements(false));
+            board.HighlightTiles(board.Model.UsedForGame.GetAllMovementsForTile(Position));
         }
 
         public void OnDragEnd()

@@ -5,7 +5,7 @@ using System.Linq;
 namespace Chess
 {
 
-    public class Board : IBoard, IEnumerable<Tile>
+    public class Board : IEnumerable<Tile>
     {
 
         public ChessGame UsedForGame { get; set; }
@@ -23,7 +23,6 @@ namespace Chess
             get => tiles[horizontal, vertical];
             private set => tiles[horizontal, vertical] = value;
         }
-
 
         public BoardVector BoardLength => new BoardVector(tiles.GetLength(0), tiles.GetLength(1));
 

@@ -9,7 +9,7 @@ namespace Chess
 
         public override PieceType Type => PieceType.King;
 
-        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(IBoard board)
+        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board)
         {
             for (int x = -1; x <= 1; x++)
             {

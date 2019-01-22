@@ -6,7 +6,7 @@ namespace Chess
     public class Tile
     {
 
-        public IBoard Board { get; private set; }
+        public Board Board { get; private set; }
         public BoardVector Coordinates { get; private set; }
 
         private Piece currentPiece;
@@ -31,7 +31,7 @@ namespace Chess
         public bool HasPiece => CurrentPiece != null;
 
 
-        public Tile(IBoard board, BoardVector coordinates)
+        public Tile(Board board, BoardVector coordinates)
         {
             Board = board;
             Coordinates = coordinates;

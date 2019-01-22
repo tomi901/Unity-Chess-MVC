@@ -50,8 +50,8 @@ namespace Chess
         public TileUI this[int h, int v] => tiles[h, v];
 
 
-        private IBoard model;
-        public IBoard Model
+        private Board model;
+        public Board Model
         {
             get => model;
             set

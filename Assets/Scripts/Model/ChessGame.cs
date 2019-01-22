@@ -38,15 +38,25 @@ namespace Chess
                 if (value == currentTurn) return;
 
                 currentTurn = value;
+                StartTurn();
                 OnTurnChange(this, EventArgs.Empty);
             }
         }
+
+        private readonly HashSet<BoardMovement> possibleMovementsForCurrentTurn = new HashSet<BoardMovement>();
+        private ILookup<BoardVector, BoardVector> turnMovementsLookup;
+
 
         public Board Board { get; private set; }
 
 
         public event EventHandler OnTurnChange = (o, e) => { };
 
+
+        public static ChessGame StartNew()
+        {
+            return new ChessGame(StandardBoardVectorSize, standardStartingPieces);
+        }
 
         public ChessGame(BoardVector boardSize, IEnumerable<IPieceEntry> startingPieces,
             PieceTeam startingTurn = PieceTeam.White)
@@ -56,11 +66,19 @@ namespace Chess
                 UsedForGame = this
             };
             CurrentTurnTeam = startingTurn;
+
+            StartTurn();
         }
 
-        public static ChessGame StartNew()
+
+        public bool CanDoMovementInCurrentTurn(BoardMovement movement)
         {
-            return new ChessGame(StandardBoardVectorSize, standardStartingPieces);
+            return possibleMovementsForCurrentTurn.Contains(movement);
+        }
+
+        public IEnumerable<BoardVector> GetAllMovementsForTile(BoardVector fromTile)
+        {
+            return turnMovementsLookup[fromTile];
         }
 
 
@@ -88,15 +106,26 @@ namespace Chess
         public bool TryToDoMovement(BoardMovement movement)
         {
             Piece currentPiece = Board[movement.from].CurrentPiece;
-            // TODO: Check if the movement is in the current legal movements cached list
             if (currentPiece != null && PieceIsInTurn(currentPiece) &&
-                currentPiece.GetAllLegalMovements(Board).Contains(movement.to))
+                CanDoMovementInCurrentTurn(movement))
             {
                 Board[movement.to].CurrentPiece = currentPiece;
                 NextTurn();
                 return true;
             }
             else return false;
+        }
+
+
+        private void StartTurn()
+        {
+            possibleMovementsForCurrentTurn.Clear();
+            foreach (BoardMovement movement in Board.Pieces.SelectMany(p => p.GetAllLegalMovements()))
+            {
+                possibleMovementsForCurrentTurn.Add(movement);
+            }
+
+            turnMovementsLookup = possibleMovementsForCurrentTurn.ToLookup(mov => mov.from, mov => mov.to);
         }
 
         private void NextTurn()

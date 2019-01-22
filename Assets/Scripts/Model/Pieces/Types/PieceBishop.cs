@@ -7,7 +7,7 @@ namespace Chess
 
         public override PieceType Type => PieceType.Bishop;
 
-        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(IBoard board)
+        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board)
         {
             return GetDiagonalLines(board);
         }

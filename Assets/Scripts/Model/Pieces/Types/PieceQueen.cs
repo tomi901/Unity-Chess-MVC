@@ -8,7 +8,7 @@ namespace Chess
 
         public override PieceType Type => PieceType.Queen;
 
-        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(IBoard board)
+        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board)
         {
             foreach (BoardVector movement in GetHorizontalAndVerticalLines(board))
             {

@@ -7,11 +7,11 @@ namespace Chess
     {
 
         private readonly IBoardView view;
-        private readonly IBoard model;
+        private readonly Board model;
 
         private readonly List<PieceController> pieces = new List<PieceController>();
 
-        public BoardController(IBoardView view, IBoard model, System.Func<IPieceView> createNewPieceFunc)
+        public BoardController(IBoardView view, Board model, System.Func<IPieceView> createNewPieceFunc)
         {
             this.view = view;
             this.model = model;

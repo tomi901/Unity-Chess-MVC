@@ -15,7 +15,7 @@ namespace Chess
             HasMoved = true;
         }
 
-        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(IBoard board)
+        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board)
         {
             foreach (BoardVector movement in GetBlockableLine(board, GetTransformedMovementForTeam(0, 1),
                 result => result == MovementAttemptResult.Unblocked, HasMoved ? 1 : 2))
