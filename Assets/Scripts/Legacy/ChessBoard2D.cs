@@ -9,13 +9,13 @@ namespace Chess
     {
 
         [SerializeField]
-        private SpriteRenderer tilePrefab;
+        private SpriteRenderer tilePrefab = default;
 
         [SerializeField]
         private float tileSize = 1f;
 
         [SerializeField]
-        private Color oddColor, evenColor;
+        private Color oddColor = default, evenColor = default;
 
 
         private SpriteRenderer[,] tiles;

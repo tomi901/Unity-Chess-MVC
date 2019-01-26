@@ -9,10 +9,10 @@ namespace Chess
     {
 
         [SerializeField]
-        private T defaultPiece;
+        private T defaultPiece = default;
 
         [SerializeField]
-        private TeamT whiteTeam, blackTeam;
+        private TeamT whiteTeam = default, blackTeam = default;
 
         public TeamT GetTeam(PieceTeam team)
         {
@@ -38,7 +38,7 @@ namespace Chess
     public class TeamSet<T> where T : Object
     {
         [SerializeField]
-        private T pawn, knight, bishop, rook, queen, king;
+        private T pawn = default, knight = default, bishop = default, rook = default, queen = default, king = default;
 
         public T GetPiece(PieceType piece)
         {

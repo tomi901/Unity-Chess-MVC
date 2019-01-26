@@ -11,7 +11,7 @@ namespace Chess
     {
 
         [SerializeField]
-        private GridLayoutGroup gridLayoutGroup;
+        private GridLayoutGroup gridLayoutGroup = default;
         public Vector2 TileSize => gridLayoutGroup.cellSize;
 
         [Header("Tiles")]

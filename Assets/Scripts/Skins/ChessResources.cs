@@ -34,7 +34,7 @@ namespace Chess
         #endregion
 
         [SerializeField]
-        private SpriteSet currentSpriteSet;
+        private SpriteSet currentSpriteSet = default;
 
         public static Sprite GetSprite(PieceTeam team, PieceType type)
         {

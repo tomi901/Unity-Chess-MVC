@@ -9,7 +9,7 @@ namespace Chess
     {
 
         [SerializeField]
-        private Image image;
+        private Image image = default;
 
         private Vector2 currentTileAnchoredPosition;
 

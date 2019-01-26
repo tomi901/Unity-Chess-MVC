@@ -18,7 +18,7 @@ public class DraggableUIElement : UIBehaviour, IBeginDragHandler, IDragHandler, 
     public class DragEvent : UnityEvent<PointerEventData> { }
 
     [SerializeField]
-    private DragEvent onBeginDragEvent, onDragEvent, onEndDragEvent;
+    private DragEvent onBeginDragEvent = default, onDragEvent = default, onEndDragEvent = default;
 
     public event UnityAction<PointerEventData> OnBeginDragEvent
     {

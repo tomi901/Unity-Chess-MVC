@@ -7,7 +7,7 @@ namespace Chess
     {
 
         [SerializeField]
-        private ChessBoardUI board;
+        private ChessBoardUI board = default;
 
 
         private ChessGame game;

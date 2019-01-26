@@ -7,7 +7,7 @@ namespace Chess
     {
 
         [SerializeField]
-        private SpriteRenderer spriteRenderer;
+        private SpriteRenderer spriteRenderer = default;
 
         private PieceType pieceType = PieceType.Unknown;
         public PieceType Type
