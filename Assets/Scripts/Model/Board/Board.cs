@@ -8,7 +8,9 @@ namespace Chess
     public class Board : IEnumerable<Tile>
     {
 
-        public ChessGame UsedForGame { get; set; }
+        public Turn UsedInTurn { get; set; }
+
+        public ChessGame UsedForGame => UsedInTurn.ForGame;
 
         private readonly Tile[,] tiles;
 

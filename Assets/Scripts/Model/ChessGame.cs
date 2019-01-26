@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Chess
 {
@@ -9,6 +8,7 @@ namespace Chess
 
         public const int StandardBoardSize = 8;
         public static BoardVector StandardBoardVectorSize => new BoardVector(StandardBoardSize);
+        public const PieceTeam StandardStartingTeam = PieceTeam.White;
 
         private static readonly IPieceEntry[] standardStartingPieces =
         {
@@ -28,26 +28,14 @@ namespace Chess
             new SinglePieceEntry<PieceKing>(PieceTeam.Black, 4, 7),
         };
 
+        private Turn currentTurn;
 
-        private PieceTeam currentTurn;
-        public PieceTeam CurrentTurnTeam
-        {
-            get => currentTurn;
-            private set
-            {
-                if (value == currentTurn) return;
-
-                currentTurn = value;
-                StartTurn();
-                OnTurnChange(this, EventArgs.Empty);
-            }
-        }
-
-        private readonly HashSet<BoardMovement> possibleMovementsForCurrentTurn = new HashSet<BoardMovement>();
-        private ILookup<BoardVector, BoardVector> turnMovementsLookup;
+        public Turn CurrentTurn => currentTurn;
+        public int CurrentTurnNumber => currentTurn.Number;
+        public PieceTeam CurrentTurnTeam => currentTurn.Team;
 
 
-        public Board Board { get; private set; }
+        public Board Board => CurrentTurn.Board;
 
 
         public event EventHandler OnTurnChange = (o, e) => { };
@@ -55,30 +43,24 @@ namespace Chess
 
         public static ChessGame StartNew()
         {
-            return new ChessGame(StandardBoardVectorSize, standardStartingPieces);
+            return new ChessGame(StandardBoardVectorSize, standardStartingPieces, StandardStartingTeam);
         }
 
-        public ChessGame(BoardVector boardSize, IEnumerable<IPieceEntry> startingPieces,
-            PieceTeam startingTurn = PieceTeam.White)
+        public ChessGame(BoardVector boardSize, IEnumerable<IPieceEntry> startingPieces, PieceTeam startingTurn)
         {
-            Board = new Board(boardSize, startingPieces)
-            {
-                UsedForGame = this
-            };
-            CurrentTurnTeam = startingTurn;
-
-            StartTurn();
+            currentTurn = new Turn(this, new Board(boardSize, startingPieces), startingTurn);
+            currentTurn.CacheCurrentPossibleMovements();
         }
 
 
         public bool CanDoMovementInCurrentTurn(BoardMovement movement)
         {
-            return possibleMovementsForCurrentTurn.Contains(movement);
+            return currentTurn.CanDoMovement(movement);
         }
 
-        public IEnumerable<BoardVector> GetAllMovementsForTile(BoardVector fromTile)
+        public IEnumerable<BoardVector> GetAllMovementsForTileInCurrentTurn(BoardVector fromTile)
         {
-            return turnMovementsLookup[fromTile];
+            return currentTurn.GetAllMovementTargetsFrom(fromTile);
         }
 
 
@@ -106,40 +88,13 @@ namespace Chess
         public bool TryToDoMovement(BoardMovement movement)
         {
             Piece currentPiece = Board[movement.from].CurrentPiece;
-            if (currentPiece != null && PieceIsInTurn(currentPiece) &&
-                CanDoMovementInCurrentTurn(movement))
+            if (currentPiece != null && currentTurn.CanDoMovement(movement))
             {
                 Board[movement.to].CurrentPiece = currentPiece;
-                NextTurn();
+                CurrentTurn.Next();
                 return true;
             }
             else return false;
-        }
-
-
-        private void StartTurn()
-        {
-            possibleMovementsForCurrentTurn.Clear();
-            foreach (BoardMovement movement in Board.Pieces.SelectMany(p => p.GetAllLegalMovements()))
-            {
-                possibleMovementsForCurrentTurn.Add(movement);
-            }
-
-            turnMovementsLookup = possibleMovementsForCurrentTurn.ToLookup(mov => mov.from, mov => mov.to);
-        }
-
-        private void NextTurn()
-        {
-            switch (CurrentTurnTeam)
-            {
-                case PieceTeam.White:
-                    CurrentTurnTeam = PieceTeam.Black;
-                    break;
-                default:
-                case PieceTeam.Black:
-                    CurrentTurnTeam = PieceTeam.White;
-                    break;
-            }
         }
 
         public bool PieceIsInTurn(Piece piece)
