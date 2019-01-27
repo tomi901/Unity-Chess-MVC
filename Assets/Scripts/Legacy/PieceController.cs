@@ -34,7 +34,7 @@ namespace Chess
 
         private void SyncType()
         {
-            view.Type = model.Type;
+            //view.Type = model.Type;
         }
 
 

@@ -1,6 +1,7 @@
 ﻿
 namespace Chess
 {
+    /*
     public enum PieceType
     {
         Unknown = 0,
@@ -11,4 +12,5 @@ namespace Chess
         Queen,
         King,
     }
+    */
 }

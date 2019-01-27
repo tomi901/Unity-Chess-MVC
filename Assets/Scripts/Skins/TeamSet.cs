@@ -28,9 +28,9 @@ namespace Chess
             }
         }
 
-        public T GetPiece(PieceTeam team, PieceType type)
+        public T GetPiece(Piece piece)
         {
-            return GetTeam(team)?.GetPiece(type) ?? defaultPiece;
+            return GetTeam(piece.Team)?.GetPiece(piece) ?? defaultPiece;
         }
 
     }
@@ -40,23 +40,22 @@ namespace Chess
         [SerializeField]
         private T pawn = default, knight = default, bishop = default, rook = default, queen = default, king = default;
 
-        public T GetPiece(PieceType piece)
+        public T GetPiece(Piece piece)
         {
             switch (piece)
             {
-                case PieceType.Pawn:
+                case PiecePawn p:
                     return pawn;
-                case PieceType.Knight:
+                case PieceKnight p:
                     return knight;
-                case PieceType.Bishop:
+                case PieceBishop p:
                     return bishop;
-                case PieceType.Rook:
+                case PieceRook p:
                     return rook;
-                case PieceType.Queen:
+                case PieceQueen p:
                     return queen;
-                case PieceType.King:
+                case PieceKing p:
                     return king;
-                case PieceType.Unknown:
                 default:
                     return null;
             }

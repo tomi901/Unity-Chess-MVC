@@ -22,7 +22,6 @@ namespace Chess
             {
                 model = value;
 
-                Type = value.Type;
                 Team = value.Team;
 
                 UpdatePosition();
@@ -47,6 +46,7 @@ namespace Chess
 
         public BoardVector Position => model.Coordinates;
 
+        /*
         private PieceType pieceType = PieceType.Unknown;
         public PieceType Type
         {
@@ -59,6 +59,7 @@ namespace Chess
                 UpdateSprite();
             }
         }
+        */
 
         private PieceTeam pieceTeam = PieceTeam.Unknown;
         public PieceTeam Team
@@ -75,7 +76,7 @@ namespace Chess
 
         private void UpdateSprite()
         {
-            image.sprite = ChessResources.GetSprite(pieceTeam, pieceType);
+            image.sprite = ChessResources.GetSprite(model);
         }
 
         private void UpdatePosition()

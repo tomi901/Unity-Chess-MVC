@@ -7,8 +7,6 @@ namespace Chess
 
         public int CurrentMoves { get; private set; } = 0;
 
-        public override PieceType Type => PieceType.King;
-
         protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board)
         {
             for (int x = -1; x <= 1; x++)

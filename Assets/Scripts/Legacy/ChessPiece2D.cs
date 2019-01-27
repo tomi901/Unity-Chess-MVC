@@ -3,12 +3,13 @@ using UnityEngine;
 
 namespace Chess
 {
-    public class ChessPiece2D : MonoBehaviour, IPieceView
+    public class ChessPiece2D : MonoBehaviour//, IPieceView
     {
 
-        [SerializeField]
-        private SpriteRenderer spriteRenderer = default;
+        //[SerializeField]
+        //private SpriteRenderer spriteRenderer = default;
 
+        /*
         private PieceType pieceType = PieceType.Unknown;
         public PieceType Type
         {
@@ -21,6 +22,7 @@ namespace Chess
                 UpdateSprite();
             }
         }
+        */
 
         private PieceTeam pieceTeam = PieceTeam.Unknown;
         public PieceTeam Team
@@ -72,7 +74,7 @@ namespace Chess
 
         private void UpdateSprite()
         {
-            spriteRenderer.sprite = ChessResources.GetSprite(pieceTeam, pieceType);
+            //spriteRenderer.sprite = ChessResources.GetSprite(pieceTeam, pieceType);
         }
 
         private void UpdatePosition()

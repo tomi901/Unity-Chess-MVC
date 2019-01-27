@@ -5,8 +5,6 @@ namespace Chess
     public class PiecePawn : Piece
     {
 
-        public override PieceType Type => PieceType.Pawn;
-
         public bool HasMoved { get; private set; } = false;
 
 

@@ -36,9 +36,9 @@ namespace Chess
         [SerializeField]
         private SpriteSet currentSpriteSet = default;
 
-        public static Sprite GetSprite(PieceTeam team, PieceType type)
+        public static Sprite GetSprite(Piece piece)
         {
-            return Instance.currentSpriteSet.GetPiece(team, type);
+            return Instance.currentSpriteSet.GetPiece(piece);
         }
 
     }

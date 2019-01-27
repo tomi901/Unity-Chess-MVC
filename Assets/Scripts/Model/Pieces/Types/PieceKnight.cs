@@ -5,8 +5,6 @@ namespace Chess
     public class PieceKnight : Piece
     {
 
-        public override PieceType Type => PieceType.Knight;
-
         protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board)
         {
             yield return new BoardVector(1, 2);

@@ -30,7 +30,6 @@ namespace Chess
 
 
         public PieceTeam Team { get; set; }
-        public abstract PieceType Type { get; }
 
 
         public event EventHandler<PieceMovementArgs> OnCoordinatesChanged = (o, e) => { };

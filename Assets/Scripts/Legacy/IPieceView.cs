@@ -8,7 +8,7 @@ namespace Chess
 
         IBoardView Board { get; set; }
 
-        PieceType Type { get; set; }
+        //PieceType Type { get; set; }
 
         PieceTeam Team { get; set; }
 
