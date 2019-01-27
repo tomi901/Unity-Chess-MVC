@@ -20,6 +20,11 @@ namespace Chess
             }
         }
 
+        public override Piece MakeCopy()
+        {
+            return new PieceQueen();
+        }
+
     }
 
 }

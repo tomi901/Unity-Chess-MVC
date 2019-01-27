@@ -12,5 +12,10 @@ namespace Chess
             return GetDiagonalLines(board);
         }
 
+        public override Piece MakeCopy()
+        {
+            return new PieceBishop();
+        }
+
     }
 }

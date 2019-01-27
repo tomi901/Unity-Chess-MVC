@@ -33,5 +33,10 @@ namespace Chess
             }
         }
 
+        public override Piece MakeCopy()
+        {
+            return new PiecePawn() { HasMoved = this.HasMoved };
+        }
+
     }
 }

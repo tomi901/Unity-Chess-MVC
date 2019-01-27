@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Chess
@@ -6,13 +7,12 @@ namespace Chess
     public class Turn
     {
 
-        private int number = 1;
-        public int Number => number;
+        public int Number { get; private set; } = 1;
+        public PieceTeam Team { get; private set; }
 
-        private PieceTeam team;
-        public PieceTeam Team => team;
+        public BoardMovement LastMovement { get; private set; }
 
-        private BoardMovement lastMovement;
+        public PieceTeam CheckedTeam { get; private set; }
 
 
         private readonly ChessGame game;
@@ -22,8 +22,11 @@ namespace Chess
         public Board Board => board;
 
 
-        private readonly HashSet<BoardMovement> allPossiblelMovementsSet = new HashSet<BoardMovement>();
+        private readonly HashSet<BoardMovement> allPossibleMovements = new HashSet<BoardMovement>();
         private ILookup<BoardVector, BoardVector> possibleMovementsLookup;
+
+
+        public event EventHandler OnNext = (o, e) => { };
 
 
         public Turn(ChessGame forGame, Board board, PieceTeam startingTeam)
@@ -33,7 +36,14 @@ namespace Chess
             this.board = board;
             board.UsedInTurn = this;
 
-            this.team = startingTeam;
+            this.Team = startingTeam;
+        }
+
+        public Turn(ChessGame forGame, Board board, PieceTeam team, int number, BoardMovement movement) 
+            : this (forGame, board, team)
+        {
+            this.Number = number;
+            this.LastMovement = movement;
         }
 
 
@@ -52,7 +62,7 @@ namespace Chess
 
         public bool CanDoMovement(BoardMovement movement)
         {
-            return allPossiblelMovementsSet.Contains(movement);
+            return allPossibleMovements.Contains(movement);
         }
 
         public IEnumerable<BoardVector> GetAllMovementTargetsFrom(BoardVector position)
@@ -61,23 +71,32 @@ namespace Chess
         }
 
 
-        public void Next()
+        public void Next(BoardMovement withMovement)
         {
-            number++;
-            team = GetNextTeam(team);
+            Number++;
+            Team = GetNextTeam(Team);
+            LastMovement = withMovement;
 
             CacheCurrentPossibleMovements();
+
+            OnNext(this, EventArgs.Empty);
         }
 
         public void CacheCurrentPossibleMovements()
         {
-            allPossiblelMovementsSet.Clear();
+            allPossibleMovements.Clear();
             foreach (BoardMovement movement in board.Pieces.SelectMany(piece => piece.GetAllLegalMovements()))
             {
-                allPossiblelMovementsSet.Add(movement);
+                allPossibleMovements.Add(movement);
             }
 
-            possibleMovementsLookup = allPossiblelMovementsSet.ToLookup(mov => mov.from, mov => mov.to);
+            possibleMovementsLookup = allPossibleMovements.ToLookup(mov => mov.from, mov => mov.to);
+        }
+
+
+        public Turn MakeCopy()
+        {
+            return new Turn(game, board.MakeCopy(), Team, Number, LastMovement);
         }
 
     }

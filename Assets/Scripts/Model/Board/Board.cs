@@ -8,7 +8,7 @@ namespace Chess
     public class Board : IEnumerable<Tile>
     {
 
-        public Turn UsedInTurn { get; set; }
+        public Turn UsedInTurn { get; internal set; }
 
         public ChessGame UsedForGame => UsedInTurn.ForGame;
 
@@ -50,6 +50,15 @@ namespace Chess
             }
         }
 
+        public Board(BoardVector size, IEnumerable<Piece> copyPieces) : this(size)
+        {
+            foreach (Piece piece in copyPieces)
+            {
+                PlacePiece(piece.MakeCopy(), piece.Coordinates);
+            }
+        }
+
+
         public void PlacePiece(Piece piece, BoardVector position)
         {
             if (this[position].HasPiece)
@@ -79,7 +88,7 @@ namespace Chess
         {
             if (!PositionIsInside(movement.from) || !PositionIsInside(movement.to)) return MovementAttemptResult.Unvalid;
 
-            return UsedForGame.GetMovementAttemptResult(movement);
+            return UsedForGame.GetMovementAttemptResult(movement, this);
         }
 
 
@@ -94,6 +103,12 @@ namespace Chess
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
+        }
+
+
+        public Board MakeCopy()
+        {
+            return new Board(BoardLength);
         }
 
     }

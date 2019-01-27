@@ -12,5 +12,10 @@ namespace Chess
             return GetHorizontalAndVerticalLines(board);
         }
 
+        public override Piece MakeCopy()
+        {
+            return new PieceRook();
+        }
+
     }
 }

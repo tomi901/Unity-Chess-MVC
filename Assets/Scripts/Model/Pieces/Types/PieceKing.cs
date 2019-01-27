@@ -5,7 +5,7 @@ namespace Chess
     public class PieceKing : Piece
     {
 
-        private int currentMoves = 0;
+        public int CurrentMoves { get; private set; } = 0;
 
         public override PieceType Type => PieceType.King;
 
@@ -22,11 +22,16 @@ namespace Chess
 
         protected override void OnMovementDone()
         {
-            currentMoves++;
-            if (currentMoves >= 50)
+            CurrentMoves++;
+            if (CurrentMoves >= 50)
             {
                 // Tie
             }
+        }
+
+        public override Piece MakeCopy()
+        {
+            return new PieceKing() { CurrentMoves = this.CurrentMoves };
         }
 
     }

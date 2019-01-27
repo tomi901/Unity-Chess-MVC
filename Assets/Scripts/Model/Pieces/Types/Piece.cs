@@ -183,5 +183,8 @@ namespace Chess
             return board.GetMovementAttemptResult(GetMovementToRelative(movement));
         }
 
+
+        public abstract Piece MakeCopy();
+
     }
 }

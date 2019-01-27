@@ -29,8 +29,18 @@ namespace Chess
         };
 
         private Turn currentTurn;
+        public Turn CurrentTurn
+        {
+            get => currentTurn;
+            set
+            {
+                if (value == currentTurn) return;
 
-        public Turn CurrentTurn => currentTurn;
+                currentTurn = value;
+                currentTurn.CacheCurrentPossibleMovements();
+            }
+        }
+
         public int CurrentTurnNumber => currentTurn.Number;
         public PieceTeam CurrentTurnTeam => currentTurn.Team;
 
@@ -48,8 +58,7 @@ namespace Chess
 
         public ChessGame(BoardVector boardSize, IEnumerable<IPieceEntry> startingPieces, PieceTeam startingTurn)
         {
-            currentTurn = new Turn(this, new Board(boardSize, startingPieces), startingTurn);
-            currentTurn.CacheCurrentPossibleMovements();
+            CurrentTurn = new Turn(this, new Board(boardSize, startingPieces), startingTurn);
         }
 
 
@@ -64,15 +73,15 @@ namespace Chess
         }
 
 
-        public MovementAttemptResult GetMovementAttemptResult(BoardMovement movement)
+        public MovementAttemptResult GetMovementAttemptResult(BoardMovement movement, Board board)
         {
-            Piece movingPiece = Board[movement.from].CurrentPiece;
+            Piece movingPiece = board[movement.from].CurrentPiece;
             if (!PieceIsInTurn(movingPiece))
             {
                 return MovementAttemptResult.NotInTurn;
             }
 
-            Piece pieceInTargetPos = Board[movement.to].CurrentPiece;
+            Piece pieceInTargetPos = board[movement.to].CurrentPiece;
             switch (pieceInTargetPos)
             {
                 case null:
@@ -91,7 +100,7 @@ namespace Chess
             if (currentPiece != null && currentTurn.CanDoMovement(movement))
             {
                 Board[movement.to].CurrentPiece = currentPiece;
-                CurrentTurn.Next();
+                CurrentTurn.Next(movement);
                 return true;
             }
             else return false;
