@@ -22,7 +22,7 @@ namespace Chess
         public Board Board => board;
 
 
-        private readonly HashSet<BoardMovement> allPossibleMovements = new HashSet<BoardMovement>();
+        private readonly Dictionary<BoardMovement, Turn> allPossibleMovements = new Dictionary<BoardMovement, Turn>();
         private ILookup<BoardVector, BoardVector> possibleMovementsLookup;
 
 
@@ -62,7 +62,7 @@ namespace Chess
 
         public bool CanDoMovement(BoardMovement movement)
         {
-            return allPossibleMovements.Contains(movement);
+            return allPossibleMovements.ContainsKey(movement);
         }
 
         public IEnumerable<BoardVector> GetAllMovementTargetsFrom(BoardVector position)
@@ -87,10 +87,12 @@ namespace Chess
             allPossibleMovements.Clear();
             foreach (BoardMovement movement in board.Pieces.SelectMany(piece => piece.GetAllLegalMovements()))
             {
-                allPossibleMovements.Add(movement);
+                allPossibleMovements.Add(movement, null);
+                // TODO: Add Turn values when needed and filter the ones that would cause a check for
+                // current team
             }
 
-            possibleMovementsLookup = allPossibleMovements.ToLookup(mov => mov.from, mov => mov.to);
+            possibleMovementsLookup = allPossibleMovements.Keys.ToLookup(mov => mov.from, mov => mov.to);
         }
 
 

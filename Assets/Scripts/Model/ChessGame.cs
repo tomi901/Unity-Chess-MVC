@@ -101,6 +101,8 @@ namespace Chess
             {
                 Board[movement.to].CurrentPiece = currentPiece;
                 CurrentTurn.Next(movement);
+                // TODO: Check if we have no movements left, if not,
+                // trigger a Tie or a Win depending if we have a Checkmate or not
                 return true;
             }
             else return false;
