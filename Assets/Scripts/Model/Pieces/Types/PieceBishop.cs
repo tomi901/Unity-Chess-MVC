@@ -10,7 +10,7 @@ namespace Chess
             return GetDiagonalLines(board);
         }
 
-        public override Piece MakeCopy()
+        protected override Piece InstantiateCopy()
         {
             return new PieceBishop();
         }

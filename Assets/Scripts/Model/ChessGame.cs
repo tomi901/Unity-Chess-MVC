@@ -37,7 +37,11 @@ namespace Chess
                 if (value == currentTurn) return;
 
                 currentTurn = value;
+
                 currentTurn.CacheCurrentPossibleMovements();
+                currentTurn.FilterCachedMovements();
+
+                currentTurn.OnNext += OnNextTurn;
             }
         }
 
@@ -75,22 +79,27 @@ namespace Chess
 
         public MovementAttemptResult GetMovementAttemptResult(BoardMovement movement, Board board)
         {
-            Piece movingPiece = board[movement.from].CurrentPiece;
-            if (!PieceIsInTurn(movingPiece))
-            {
-                return MovementAttemptResult.NotInTurn;
-            }
-
             Piece pieceInTargetPos = board[movement.to].CurrentPiece;
             switch (pieceInTargetPos)
             {
                 case null:
                     return MovementAttemptResult.Unblocked;
                 default:
-                    return pieceInTargetPos.Team == movingPiece.Team ?
+                    return pieceInTargetPos.Team == board[movement.from].CurrentPiece.Team ?
                                 MovementAttemptResult.SameTeam :
                                 MovementAttemptResult.OtherTeam;
             }
+        }
+
+
+        public PieceTeam GetCheckResult(BoardMovement movement, Board inBoard)
+        {
+            Piece capturedPiece = inBoard[movement.to].CurrentPiece;
+            if (capturedPiece != null && capturedPiece is PieceKing)
+            {
+                return capturedPiece.Team;
+            }
+            else return PieceTeam.Unknown;
         }
 
 
@@ -103,14 +112,21 @@ namespace Chess
                 CurrentTurn.Next(movement);
                 // TODO: Check if we have no movements left, if not,
                 // trigger a Tie or a Win depending if we have a Checkmate or not
+                if (CurrentTurn.AllPossibleMovements.Count <= 0)
+                {
+                    // Current team loses
+                }
+
                 return true;
             }
             else return false;
         }
 
-        public bool PieceIsInTurn(Piece piece)
+
+        private void OnNextTurn(object sender, EventArgs eventArgs)
         {
-            return piece.Team == CurrentTurnTeam;
+            CurrentTurn.FilterCachedMovements();
+            OnTurnChange(sender, eventArgs);
         }
 
     }

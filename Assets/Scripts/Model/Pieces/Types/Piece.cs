@@ -26,6 +26,7 @@ namespace Chess
         }
 
         public Board ContainingBoard => CurrentTile.Board;
+        public Turn CurrentTurn => ContainingBoard.UsedInTurn;
         public BoardVector Coordinates => CurrentTile?.Coordinates ?? default;
 
 
@@ -78,6 +79,9 @@ namespace Chess
         /// <returns>All valid of movements.</returns>
         private IEnumerable<BoardVector> GetAllLegalMovements(bool relativePosition)
         {
+            if (!CurrentTurn.IsInTurn(this))
+                return Enumerable.Empty<BoardVector>();
+
             Board board = ContainingBoard;
             IEnumerable<BoardVector> movements = GetAllPosibleRelativeMovements(board)
                 .Where(m => GetMovementAttemptResult(board, m).IsUnblockedOrOtherTeam());
@@ -183,7 +187,14 @@ namespace Chess
         }
 
 
-        public abstract Piece MakeCopy();
+        public Piece MakeCopy()
+        {
+            Piece newPiece = InstantiateCopy();
+            newPiece.Team = Team;
+            return newPiece;
+        }
+
+        protected abstract Piece InstantiateCopy();
 
     }
 }

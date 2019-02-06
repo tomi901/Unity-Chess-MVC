@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Chess
@@ -24,6 +25,16 @@ namespace Chess
 
         private readonly Dictionary<BoardMovement, Turn> allPossibleMovements = new Dictionary<BoardMovement, Turn>();
         private ILookup<BoardVector, BoardVector> possibleMovementsLookup;
+
+        private ReadOnlyDictionary<BoardMovement, Turn> allPossibleMovementsRo = null;
+        public ReadOnlyDictionary<BoardMovement, Turn> AllPossibleMovements => allPossibleMovementsRo ?? 
+            (allPossibleMovementsRo = new ReadOnlyDictionary<BoardMovement, Turn>(allPossibleMovements));
+
+
+        private bool movementsAreCached = false, cachedMovementsAreFiltered = false;
+
+        public bool MovementsAreCached => movementsAreCached;
+        public bool CachedMovementsAreFiltered => movementsAreCached && cachedMovementsAreFiltered;
 
 
         public event EventHandler OnNext = (o, e) => { };
@@ -60,6 +71,17 @@ namespace Chess
         }
 
 
+        public bool IsInTurn(Piece piece)
+        {
+            return IsInTurn(piece.Team);
+        }
+
+        public bool IsInTurn(PieceTeam team)
+        {
+            return team == this.Team;
+        }
+
+
         public bool CanDoMovement(BoardMovement movement)
         {
             return allPossibleMovements.ContainsKey(movement);
@@ -73,26 +95,97 @@ namespace Chess
 
         public void Next(BoardMovement withMovement)
         {
+            movementsAreCached = cachedMovementsAreFiltered = false;
+
             Number++;
             Team = GetNextTeam(Team);
             LastMovement = withMovement;
 
-            CacheCurrentPossibleMovements();
+            // Cache all the movements, but first try to find if the next turn is in the current cache
+            // and copy it's movements
+            if (allPossibleMovements.TryGetValue(withMovement, out Turn next) && next != null)
+            {
+                allPossibleMovements.Clear();
+                foreach (var kvp in next.allPossibleMovements)
+                {
+                    allPossibleMovements.Add(kvp.Key, kvp.Value);
+                }
+
+                CheckedTeam = next.CheckedTeam;
+                movementsAreCached = true;
+            }
+            else CacheCurrentPossibleMovements();
 
             OnNext(this, EventArgs.Empty);
         }
 
+
         public void CacheCurrentPossibleMovements()
         {
+            CheckedTeam = PieceTeam.Unknown;
+
             allPossibleMovements.Clear();
             foreach (BoardMovement movement in board.Pieces.SelectMany(piece => piece.GetAllLegalMovements()))
             {
                 allPossibleMovements.Add(movement, null);
-                // TODO: Add Turn values when needed and filter the ones that would cause a check for
-                // current team
+                PieceTeam checkResult = game.GetCheckResult(movement, board);
+                if (checkResult != PieceTeam.Unknown)
+                {
+                    if (CheckedTeam == PieceTeam.Unknown)
+                    {
+                        CheckedTeam = checkResult;
+                    }
+                    else if (checkResult != CheckedTeam)
+                    {
+                        // This should never happen (Maybe?)
+                    }
+                }
             }
 
+            movementsAreCached = true;
+            cachedMovementsAreFiltered = false;
+        }
+
+
+        public void FilterCachedMovements()
+        {
+            if (!movementsAreCached)
+            {
+                throw new Exception("Cannot filter current possible movements, must cache them first." +
+                    $" ({nameof(CacheCurrentPossibleMovements)})");
+            }
+
+
+            // First simulate all the possible turns
+
+            List<KeyValuePair<BoardMovement, Turn>> turnsToModify = new List<KeyValuePair<BoardMovement, Turn>>();
+            foreach (KeyValuePair<BoardMovement, Turn> kvp in allPossibleMovements.Where(kvp => kvp.Value == null))
+            {
+                Turn simulatedTurn = this.MakeCopy();
+                simulatedTurn.Next(kvp.Key);
+                turnsToModify.Add(new KeyValuePair<BoardMovement, Turn>(kvp.Key, simulatedTurn));
+            }
+            turnsToModify.ForEach(kvp => allPossibleMovements[kvp.Key] = kvp.Value);
+
+
+            // Then filter all the possible movements
+
+            List<BoardMovement> removeMovements = new List<BoardMovement>(allPossibleMovements
+                .Where(ShouldRemove).Select(kvp => kvp.Key));
+
+            bool ShouldRemove(KeyValuePair<BoardMovement, Turn> kvp)
+            {
+                if (kvp.Value == null)
+                    throw new Exception("One of the turns wasn't cached, make sure all of them are.");
+
+                return kvp.Value.CheckedTeam == Team;
+            }
+
+            removeMovements.ForEach(movement => allPossibleMovements.Remove(movement));
+            // Update the possible movements lookup after we filter succesfully
             possibleMovementsLookup = allPossibleMovements.Keys.ToLookup(mov => mov.from, mov => mov.to);
+
+            cachedMovementsAreFiltered = true;
         }
 
 

@@ -20,7 +20,7 @@ namespace Chess
             yield return new BoardVector(-1, 2);
         }
 
-        public override Piece MakeCopy()
+        protected override Piece InstantiateCopy()
         {
             return new PieceKnight();
         }

@@ -30,6 +30,7 @@ namespace Chess
 
 
         public IEnumerable<Piece> Pieces => this.Select(tile => tile.CurrentPiece).Where(piece => piece != null);
+        public int PieceCount => this.Count(tile => tile.HasPiece);
 
 
         public Board(BoardVector size)
@@ -94,7 +95,7 @@ namespace Chess
 
         public IEnumerator<Tile> GetEnumerator()
         {
-            foreach (Tile tile in tiles)
+            foreach (var tile in tiles)
             {
                 yield return tile;
             }
@@ -108,7 +109,7 @@ namespace Chess
 
         public Board MakeCopy()
         {
-            return new Board(BoardLength);
+            return new Board(BoardLength, Pieces);
         }
 
     }

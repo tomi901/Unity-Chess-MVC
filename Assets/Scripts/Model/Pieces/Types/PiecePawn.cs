@@ -31,7 +31,7 @@ namespace Chess
             }
         }
 
-        public override Piece MakeCopy()
+        protected override Piece InstantiateCopy()
         {
             return new PiecePawn() { HasMoved = this.HasMoved };
         }
