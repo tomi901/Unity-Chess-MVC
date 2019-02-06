@@ -15,7 +15,7 @@ namespace Chess
 
         public override string ToString()
         {
-            return $"{from.ToStringCoordinates()} -> {to.ToStringCoordinates()}";
+            return from.ToStringCoordinates() + to.ToStringCoordinates();
         }
 
     }

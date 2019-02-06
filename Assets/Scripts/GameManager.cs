@@ -28,6 +28,7 @@ namespace Chess
                 game = value;
 
                 game.OnTurnChange += OnNextTurn;
+                game.OnGameEnded += OnGameEnded;
 
                 UpdateTurn();
             }
@@ -55,6 +56,26 @@ namespace Chess
         // Event listeners
 
         private void OnNextTurn(object sender, EventArgs eventArgs) => UpdateTurn();
+
+
+        private void OnGameEnded(object sender, EventArgs eventArgs)
+        {
+            switch (Game.CurrentTurnCheck)
+            {
+                case PieceTeam.Unknown:
+                    Debug.Log("Tie");
+                    break;
+                case PieceTeam.White:
+                    Debug.Log("Black wins!");
+                    break;
+                case PieceTeam.Black:
+                    Debug.Log("White wins!");
+                    break;
+                default:
+                    Debug.LogWarning("Game ended (Unknow case.)");
+                    break;
+            }
+        }
 
     }
 

@@ -48,11 +48,14 @@ namespace Chess
         public int CurrentTurnNumber => currentTurn.Number;
         public PieceTeam CurrentTurnTeam => currentTurn.Team;
 
+        public PieceTeam CurrentTurnCheck => currentTurn.CheckedTeam;
+
 
         public Board Board => CurrentTurn.Board;
 
 
         public event EventHandler OnTurnChange = (o, e) => { };
+        public event EventHandler OnGameEnded = (o, e) => { };
 
 
         public static ChessGame StartNew()
@@ -110,12 +113,6 @@ namespace Chess
             {
                 Board[movement.to].CurrentPiece = currentPiece;
                 CurrentTurn.Next(movement);
-                // TODO: Check if we have no movements left, if not,
-                // trigger a Tie or a Win depending if we have a Checkmate or not
-                if (CurrentTurn.AllPossibleMovements.Count <= 0)
-                {
-                    // Current team loses
-                }
 
                 return true;
             }
@@ -127,6 +124,12 @@ namespace Chess
         {
             CurrentTurn.FilterCachedMovements();
             OnTurnChange(sender, eventArgs);
+
+            if (CurrentTurn.AllPossibleMovements.Count <= 0)
+            {
+                // Current team loses
+                OnGameEnded(this, EventArgs.Empty);
+            }
         }
 
     }

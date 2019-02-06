@@ -171,20 +171,12 @@ namespace Chess
             // Then filter all the possible movements
 
             List<BoardMovement> removeMovements = new List<BoardMovement>(allPossibleMovements
-                .Where(ShouldRemove).Select(kvp => kvp.Key));
-
-            bool ShouldRemove(KeyValuePair<BoardMovement, Turn> kvp)
-            {
-                if (kvp.Value == null)
-                    throw new Exception("One of the turns wasn't cached, make sure all of them are.");
-
-                return kvp.Value.CheckedTeam == Team;
-            }
+                .Where(kvp => kvp.Value.CheckedTeam == Team).Select(kvp => kvp.Key));
 
             removeMovements.ForEach(movement => allPossibleMovements.Remove(movement));
+
             // Update the possible movements lookup after we filter succesfully
             possibleMovementsLookup = allPossibleMovements.Keys.ToLookup(mov => mov.from, mov => mov.to);
-
             cachedMovementsAreFiltered = true;
         }
 
