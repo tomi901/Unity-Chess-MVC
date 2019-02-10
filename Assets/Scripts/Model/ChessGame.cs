@@ -109,11 +109,9 @@ namespace Chess
         public bool TryToDoMovement(BoardMovement movement)
         {
             Piece currentPiece = Board[movement.from].CurrentPiece;
-            if (currentPiece != null && currentTurn.CanDoMovement(movement))
+            if (currentPiece != null && CurrentTurn.CanDoMovement(movement))
             {
-                Board[movement.to].CurrentPiece = currentPiece;
                 CurrentTurn.Next(movement);
-
                 return true;
             }
             else return false;

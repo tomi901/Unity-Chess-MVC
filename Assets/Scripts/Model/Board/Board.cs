@@ -73,16 +73,21 @@ namespace Chess
         }
 
 
-        public bool TryToMovePiece(BoardMovement movement)
+        public void DoMovement(BoardMovement movement)
         {
-            return UsedForGame.TryToDoMovement(movement);
+            if (!MovementIsInside(movement))
+                throw new System.ArgumentOutOfRangeException(nameof(movement));
+
+            this[movement.to].CurrentPiece = this[movement.from].CurrentPiece;
         }
 
 
-        public bool PositionIsInside(BoardVector position)
-        {
-            return position.IsInsideBox(BoardLength);
-        }
+        public bool TryToMovePiece(BoardMovement movement) => UsedForGame.TryToDoMovement(movement);
+
+
+        public bool PositionIsInside(BoardVector position) => position.IsInsideBox(BoardLength);
+
+        public bool MovementIsInside(BoardMovement movement) => movement.IsInsideBox(BoardLength);
 
 
         public MovementAttemptResult GetMovementAttemptResult(BoardMovement movement)

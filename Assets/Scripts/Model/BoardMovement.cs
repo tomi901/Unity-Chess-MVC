@@ -13,6 +13,8 @@ namespace Chess
             this.to = to;
         }
 
+        public bool IsInsideBox(BoardVector boxLength) => from.IsInsideBox(boxLength) && to.IsInsideBox(boxLength);
+
         public override string ToString()
         {
             return from.ToStringCoordinates() + to.ToStringCoordinates();

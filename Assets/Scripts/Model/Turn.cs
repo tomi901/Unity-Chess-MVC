@@ -71,15 +71,11 @@ namespace Chess
         }
 
 
-        public bool IsInTurn(Piece piece)
-        {
-            return IsInTurn(piece.Team);
-        }
+        public bool IsInTurn(Piece piece) => IsInTurn(piece.Team);
+        public bool IsInTurn(PieceTeam team) => team == this.Team;
 
-        public bool IsInTurn(PieceTeam team)
-        {
-            return team == this.Team;
-        }
+
+        public bool TeamIsChecked(PieceTeam team) => CheckedTeam == team;
 
 
         public bool CanDoMovement(BoardMovement movement)
@@ -93,17 +89,19 @@ namespace Chess
         }
 
 
-        public void Next(BoardMovement withMovement)
+        public void Next(BoardMovement movement)
         {
+            Board.DoMovement(movement);
+
             movementsAreCached = cachedMovementsAreFiltered = false;
 
             Number++;
             Team = GetNextTeam(Team);
-            LastMovement = withMovement;
+            LastMovement = movement;
 
             // Cache all the movements, but first try to find if the next turn is in the current cache
             // and copy it's movements
-            if (allPossibleMovements.TryGetValue(withMovement, out Turn next) && next != null)
+            if (allPossibleMovements.TryGetValue(movement, out Turn next) && next != null)
             {
                 allPossibleMovements.Clear();
                 foreach (var kvp in next.allPossibleMovements)
@@ -171,7 +169,7 @@ namespace Chess
             // Then filter all the possible movements
 
             List<BoardMovement> removeMovements = new List<BoardMovement>(allPossibleMovements
-                .Where(kvp => kvp.Value.CheckedTeam == Team).Select(kvp => kvp.Key));
+                .Where(kvp => kvp.Value.TeamIsChecked(Team)).Select(kvp => kvp.Key));
 
             removeMovements.ForEach(movement => allPossibleMovements.Remove(movement));
 
