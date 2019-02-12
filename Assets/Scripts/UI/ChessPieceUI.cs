@@ -61,7 +61,7 @@ namespace Chess
         }
         */
 
-        private PieceTeam pieceTeam = PieceTeam.Unknown;
+        private PieceTeam pieceTeam = PieceTeam.None;
         public PieceTeam Team
         {
             get => pieceTeam;

@@ -22,7 +22,7 @@ namespace Chess
                     return whiteTeam;
                 case PieceTeam.Black:
                     return blackTeam;
-                case PieceTeam.Unknown:
+                case PieceTeam.None:
                 default:
                     return null;
             }

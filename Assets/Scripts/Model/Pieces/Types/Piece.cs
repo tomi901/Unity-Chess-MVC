@@ -108,7 +108,7 @@ namespace Chess
                     return movement;
                 case PieceTeam.White:
                     return movement;
-                case PieceTeam.Unknown:
+                case PieceTeam.None:
                 default:
                     throw new Exception($"Invalid team ({Team}) to transform movement \"{movement}\"");
             }

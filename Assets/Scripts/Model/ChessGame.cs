@@ -48,7 +48,7 @@ namespace Chess
         public int CurrentTurnNumber => currentTurn.Number;
         public PieceTeam CurrentTurnTeam => currentTurn.Team;
 
-        public PieceTeam CurrentTurnCheck => currentTurn.CheckedTeam;
+        public PieceTeam CurrentTurnCheck => currentTurn.CurrentCheckedTeam;
 
 
         public Board Board => CurrentTurn.Board;
@@ -102,7 +102,7 @@ namespace Chess
             {
                 return capturedPiece.Team;
             }
-            else return PieceTeam.Unknown;
+            else return PieceTeam.None;
         }
 
 

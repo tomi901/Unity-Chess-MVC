@@ -13,7 +13,10 @@ namespace Chess
 
         public BoardMovement LastMovement { get; private set; }
 
-        public PieceTeam CheckedTeam { get; private set; }
+        public PieceTeam CurrentCheckedTeam { get; private set; }
+
+        public PieceTeam NextTurnsCheck { get; private set; }
+        public bool IsAnyTeamChecked => NextTurnsCheck != PieceTeam.None;
 
 
         private readonly ChessGame game;
@@ -75,7 +78,7 @@ namespace Chess
         public bool IsInTurn(PieceTeam team) => team == this.Team;
 
 
-        public bool TeamIsChecked(PieceTeam team) => CheckedTeam == team;
+        public bool TeamIsChecked(PieceTeam team) => CurrentCheckedTeam == team;
 
 
         public bool CanDoMovement(BoardMovement movement)
@@ -98,6 +101,7 @@ namespace Chess
             Number++;
             Team = GetNextTeam(Team);
             LastMovement = movement;
+            NextTurnsCheck = PieceTeam.None;
 
             // Cache all the movements, but first try to find if the next turn is in the current cache
             // and copy it's movements
@@ -109,7 +113,7 @@ namespace Chess
                     allPossibleMovements.Add(kvp.Key, kvp.Value);
                 }
 
-                CheckedTeam = next.CheckedTeam;
+                CurrentCheckedTeam = next.CurrentCheckedTeam;
                 movementsAreCached = true;
             }
             else CacheCurrentPossibleMovements();
@@ -120,20 +124,20 @@ namespace Chess
 
         public void CacheCurrentPossibleMovements()
         {
-            CheckedTeam = PieceTeam.Unknown;
+            CurrentCheckedTeam = PieceTeam.None;
 
             allPossibleMovements.Clear();
             foreach (BoardMovement movement in board.Pieces.SelectMany(piece => piece.GetAllLegalMovements()))
             {
                 allPossibleMovements.Add(movement, null);
                 PieceTeam checkResult = game.GetCheckResult(movement, board);
-                if (checkResult != PieceTeam.Unknown)
+                if (checkResult != PieceTeam.None)
                 {
-                    if (CheckedTeam == PieceTeam.Unknown)
+                    if (CurrentCheckedTeam == PieceTeam.None)
                     {
-                        CheckedTeam = checkResult;
+                        CurrentCheckedTeam = checkResult;
                     }
-                    else if (checkResult != CheckedTeam)
+                    else if (checkResult != CurrentCheckedTeam)
                     {
                         // This should never happen (Maybe?)
                     }
@@ -168,10 +172,17 @@ namespace Chess
 
             // Then filter all the possible movements
 
-            List<BoardMovement> removeMovements = new List<BoardMovement>(allPossibleMovements
-                .Where(kvp => kvp.Value.TeamIsChecked(Team)).Select(kvp => kvp.Key));
+            turnsToModify.Clear();
+            turnsToModify.AddRange(allPossibleMovements.Where(kvp => kvp.Value.TeamIsChecked(Team)));
 
-            removeMovements.ForEach(movement => allPossibleMovements.Remove(movement));
+            foreach (KeyValuePair<BoardMovement, Turn> movementTurn in turnsToModify)
+            {
+                if (NextTurnsCheck == PieceTeam.None && movementTurn.Value.CurrentCheckedTeam != PieceTeam.None)
+                {
+                    NextTurnsCheck = movementTurn.Value.CurrentCheckedTeam;
+                }
+                allPossibleMovements.Remove(movementTurn.Key);
+            }
 
             // Update the possible movements lookup after we filter succesfully
             possibleMovementsLookup = allPossibleMovements.Keys.ToLookup(mov => mov.from, mov => mov.to);
