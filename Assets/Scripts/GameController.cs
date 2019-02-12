@@ -5,7 +5,7 @@ using TMPro;
 namespace Chess
 {
 
-    public class GameManager : MonoBehaviour
+    public class GameController : MonoBehaviour
     {
 
         [SerializeField]
@@ -30,7 +30,7 @@ namespace Chess
                 game.OnTurnChange += OnNextTurn;
                 game.OnGameEnded += OnGameEnded;
 
-                UpdateTurn();
+                UpdateTurnInfo();
             }
         }
 
@@ -47,7 +47,7 @@ namespace Chess
         }
 
 
-        private void UpdateTurn()
+        private void UpdateTurnInfo()
         {
             turnText.text = $"Turn {game.CurrentTurnNumber} \n" +
                 $"Team {game.CurrentTurnTeam}";
@@ -55,7 +55,7 @@ namespace Chess
 
         // Event listeners
 
-        private void OnNextTurn(object sender, EventArgs eventArgs) => UpdateTurn();
+        private void OnNextTurn(object sender, EventArgs eventArgs) => UpdateTurnInfo();
 
 
         private void OnGameEnded(object sender, EventArgs eventArgs)
