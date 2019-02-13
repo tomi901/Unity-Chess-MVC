@@ -1,9 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
 using Chess.Utils;
-
 
 namespace Chess
 {
@@ -42,6 +42,21 @@ namespace Chess
         private RectTransform piecesContainer = null;
         public RectTransform PiecesContainer => piecesContainer;
 
+        [Space]
+
+        [SerializeField]
+        private float moveAnimationDuration = 0.2f;
+        public float PieceMoveDuration => moveAnimationDuration;
+
+
+        private List<ChessPieceUI> pieces = new List<ChessPieceUI>();
+        public bool AllPiecesDraggable
+        {
+            get => pieces.All(p => p.IsDraggable);
+            set => pieces.ForEach(p => p.IsDraggable = value);
+        }
+
+
         private TileUI[,] tiles;
 
 
@@ -59,12 +74,7 @@ namespace Chess
                 model = value;
                 Size = model.BoardLength;
 
-                foreach (Piece piece in model.Pieces)
-                {
-                    ChessPieceUI newPiece = Instantiate(piecePrefab, PiecesContainer);
-                    newPiece.Board = this;
-                    newPiece.Model = piece;
-                }
+                foreach (Piece piece in model.Pieces) AddPiece(piece);
             }
         }
 
@@ -98,6 +108,19 @@ namespace Chess
             }
         }
 
+
+        private void AddPiece(Piece piece)
+        {
+            ChessPieceUI newPiece = Instantiate(piecePrefab, PiecesContainer);
+            newPiece.Board = this;
+            newPiece.Model = piece;
+
+            newPiece.OnObjectDestroy += () => pieces.Remove(newPiece);
+
+            pieces.Add(newPiece);
+        }
+
+
         public bool CoordinateIsInBoard(BoardVector position)
         {
             return position.IsInsideBox(tiles.GetLength(0), tiles.GetLength(1));
@@ -122,7 +145,7 @@ namespace Chess
         }
 
 
-        public void HighlightTiles(System.Collections.Generic.IEnumerable<BoardVector> tiles)
+        public void HighlightTiles(IEnumerable<BoardVector> tiles)
         {
             ResetHighlightedTiles();
 

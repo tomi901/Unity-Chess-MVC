@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
+using DG.Tweening;
+
 
 namespace Chess
 {
@@ -9,9 +11,16 @@ namespace Chess
     {
 
         [SerializeField]
+        private DraggableUIElement draggable = default;
+        public bool IsDraggable { get => draggable.isActiveAndEnabled; set => draggable.enabled = value; }
+
+        [SerializeField]
         private Image image = default;
 
         private Vector2 currentTileAnchoredPosition;
+
+
+        public event System.Action OnObjectDestroy = () => { };
 
 
         private Piece model;
@@ -45,21 +54,7 @@ namespace Chess
         }
 
         public BoardVector Position => model.Coordinates;
-
-        /*
-        private PieceType pieceType = PieceType.Unknown;
-        public PieceType Type
-        {
-            get => pieceType;
-            set
-            {
-                if (value == pieceType) return;
-
-                pieceType = value;
-                UpdateSprite();
-            }
-        }
-        */
+        public Vector2 TargetPosition => board.GetAnchoredPositionForTile(Position);
 
         private PieceTeam pieceTeam = PieceTeam.None;
         public PieceTeam Team
@@ -83,8 +78,7 @@ namespace Chess
         {
             if (board == null) return;
 
-            currentTileAnchoredPosition = board.GetAnchoredPositionForTile(Position);
-            image.rectTransform.anchoredPosition = currentTileAnchoredPosition;
+            currentTileAnchoredPosition = image.rectTransform.anchoredPosition = TargetPosition;
         }
 
 
@@ -94,12 +88,22 @@ namespace Chess
         }
 
 
+        private void OnDestroy()
+        {
+            OnObjectDestroy();
+        }
+
+
         // Model Listeners
 
         private void OnMoveToEventListener(object sender, PieceMovementArgs args)
         {
-            UpdatePosition();
-            // TODO: Animation
+            currentTileAnchoredPosition = TargetPosition;
+
+            Board.AllPiecesDraggable = false;
+            Tweener tween = image.rectTransform.DOAnchorPos(currentTileAnchoredPosition, board.PieceMoveDuration);
+            tween.SetRecyclable(true);
+            tween.OnComplete(() => Board.AllPiecesDraggable = true);
         }
 
         private void OnCaptureEventListener(object sender, System.EventArgs args)

@@ -1,6 +1,8 @@
 ﻿using System;
 using UnityEngine;
+
 using TMPro;
+using DG.Tweening;
 
 namespace Chess
 {
@@ -37,6 +39,7 @@ namespace Chess
 
         private void Start()
         {
+            DOTween.Init();
             StartNewGame();
         }
 

@@ -59,6 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a700542af20d5514fbbe4c60e370bd9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  draggable: {fileID: 7430423381458449398}
   image: {fileID: 2637502423354281104}
 --- !u!114 &7430423381458449398
 MonoBehaviour:
