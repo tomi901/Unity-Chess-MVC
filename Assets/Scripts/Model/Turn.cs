@@ -15,8 +15,8 @@ namespace Chess
 
         public PieceTeam CurrentCheckedTeam { get; private set; }
 
-        public PieceTeam NextTurnsCheck { get; private set; }
-        public bool IsAnyTeamChecked => NextTurnsCheck != PieceTeam.None;
+        public PieceTeam FilteredNextTurnsCheck { get; private set; }
+        public bool IsAnyFilteredTurnChecked => FilteredNextTurnsCheck != PieceTeam.None;
 
 
         private readonly ChessGame game;
@@ -27,7 +27,6 @@ namespace Chess
 
 
         private readonly Dictionary<BoardMovement, Turn> allPossibleMovements = new Dictionary<BoardMovement, Turn>();
-        private ILookup<BoardVector, BoardVector> possibleMovementsLookup;
 
         private ReadOnlyDictionary<BoardMovement, Turn> allPossibleMovementsRo = null;
         public ReadOnlyDictionary<BoardMovement, Turn> AllPossibleMovements => allPossibleMovementsRo ?? 
@@ -86,9 +85,15 @@ namespace Chess
             return allPossibleMovements.ContainsKey(movement);
         }
 
-        public IEnumerable<BoardVector> GetAllMovementTargetsFrom(BoardVector position)
+
+        public IEnumerable<BoardMovement> GetAllMovementsFrom(BoardVector origin)
         {
-            return possibleMovementsLookup[position];
+            return allPossibleMovements.Keys.Where(m => m.from == origin);
+        }
+
+        public IEnumerable<BoardMovement> GetAllMovementsTo(BoardVector destination)
+        {
+            return allPossibleMovements.Keys.Where(m => m.to == destination);
         }
 
 
@@ -101,7 +106,7 @@ namespace Chess
             Number++;
             Team = GetNextTeam(Team);
             LastMovement = movement;
-            NextTurnsCheck = PieceTeam.None;
+            FilteredNextTurnsCheck = PieceTeam.None;
 
             // Cache all the movements, but first try to find if the next turn is in the current cache
             // and copy it's movements
@@ -177,15 +182,14 @@ namespace Chess
 
             foreach (KeyValuePair<BoardMovement, Turn> movementTurn in turnsToModify)
             {
-                if (NextTurnsCheck == PieceTeam.None && movementTurn.Value.CurrentCheckedTeam != PieceTeam.None)
+                if (FilteredNextTurnsCheck == PieceTeam.None && movementTurn.Value.CurrentCheckedTeam != PieceTeam.None)
                 {
-                    NextTurnsCheck = movementTurn.Value.CurrentCheckedTeam;
+                    FilteredNextTurnsCheck = movementTurn.Value.CurrentCheckedTeam;
                 }
                 allPossibleMovements.Remove(movementTurn.Key);
             }
 
             // Update the possible movements lookup after we filter succesfully
-            possibleMovementsLookup = allPossibleMovements.Keys.ToLookup(mov => mov.from, mov => mov.to);
             cachedMovementsAreFiltered = true;
         }
 

@@ -55,24 +55,17 @@ namespace Chess
             turnText.text = $"Turn {game.CurrentTurnNumber}\n" +
                 $"Team {game.CurrentTurnTeam}\n" +
                 $"Check: {game.CurrentTurnCheck}\n" +
-                $"Next check: {game.CurrentTurn.NextTurnsCheck}";
+                $"Filtered turns check: {game.CurrentTurn.FilteredNextTurnsCheck}";
         }
 
         // Event listeners
 
-        private void OnNextTurn(object sender, EventArgs eventArgs)
-        {
-            if (game.CurrentTurn.IsAnyTeamChecked)
-            {
-                Debug.Log($"Turn {game.CurrentTurnNumber}: Check.");
-            }
-            UpdateTurnInfo();
-        }
+        private void OnNextTurn(object sender, EventArgs eventArgs) => UpdateTurnInfo();
 
 
         private void OnGameEnded(object sender, EventArgs eventArgs)
         {
-            switch (Game.CurrentTurn.NextTurnsCheck)
+            switch (Game.CurrentTurn.FilteredNextTurnsCheck)
             {
                 case PieceTeam.None:
                     Debug.Log("Tie.");

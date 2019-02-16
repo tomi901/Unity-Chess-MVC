@@ -145,6 +145,11 @@ namespace Chess
         }
 
 
+        public void HighlightTilesFromMovementOrigin(BoardVector origin)
+        {
+            HighlightTiles(Model.UsedForGame.GetAllMovementsFromTileInCurrentTurn(origin).Select(m => m.to));
+        }
+
         public void HighlightTiles(IEnumerable<BoardVector> tiles)
         {
             ResetHighlightedTiles();

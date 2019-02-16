@@ -69,10 +69,7 @@ namespace Chess
             }
         }
 
-        private void UpdateSprite()
-        {
-            image.sprite = ChessResources.GetSprite(model);
-        }
+        private void UpdateSprite() => image.sprite = ChessResources.GetSprite(model);
 
         private void UpdatePosition()
         {
@@ -82,16 +79,10 @@ namespace Chess
         }
 
 
-        public void SetMovementTarget(BoardVector position)
-        {
-            model.TryToMoveTo(position);
-        }
+        public void SetMovementTarget(BoardVector position) => model.TryToMoveTo(position);
 
 
-        private void OnDestroy()
-        {
-            OnObjectDestroy();
-        }
+        private void OnDestroy() => OnObjectDestroy();
 
 
         // Model Listeners
@@ -116,7 +107,7 @@ namespace Chess
 
         public void OnDragBegin()
         {
-            board.HighlightTiles(board.Model.UsedForGame.GetAllMovementsForTileInCurrentTurn(Position));
+            board.HighlightTilesFromMovementOrigin(Position);
         }
 
         public void OnDragEnd()

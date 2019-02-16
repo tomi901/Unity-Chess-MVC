@@ -21,7 +21,7 @@ namespace Chess
                 switch (Team)
                 {
                     case PieceTeam.White:
-                        return ContainingBoard.BoardLength.vertical;
+                        return ContainingBoard.BoardLength.vertical - 1;
                     case PieceTeam.Black:
                         return 0;
                     default:
@@ -61,7 +61,7 @@ namespace Chess
             {
                 yield return movement;
 
-                if (movement.to.vertical == promotionHeight)
+                if ((Coordinates.vertical + movement.to.vertical) == promotionHeight)
                 {
                     foreach (ChessPieceType piecePromotion in promotablePieces)
                     {

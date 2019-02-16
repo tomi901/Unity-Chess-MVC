@@ -69,14 +69,17 @@ namespace Chess
         }
 
 
-        public bool CanDoMovementInCurrentTurn(BoardMovement movement)
+        public bool CanDoMovementInCurrentTurn(BoardMovement movement) => currentTurn.CanDoMovement(movement);
+
+
+        public IEnumerable<BoardMovement> GetAllMovementsFromTileInCurrentTurn(BoardVector fromTile)
         {
-            return currentTurn.CanDoMovement(movement);
+            return currentTurn.GetAllMovementsFrom(fromTile);
         }
 
-        public IEnumerable<BoardVector> GetAllMovementsForTileInCurrentTurn(BoardVector fromTile)
+        public IEnumerable<BoardMovement> GetAllMovementsToTileInCurrentTurn(BoardVector toTile)
         {
-            return currentTurn.GetAllMovementTargetsFrom(fromTile);
+            return currentTurn.GetAllMovementsTo(toTile);
         }
 
 
