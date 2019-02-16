@@ -78,10 +78,6 @@ namespace Chess
             currentTileAnchoredPosition = image.rectTransform.anchoredPosition = TargetPosition;
         }
 
-
-        public void SetMovementTarget(BoardVector position) => model.TryToMoveTo(position);
-
-
         private void OnDestroy() => OnObjectDestroy();
 
 
@@ -112,11 +108,11 @@ namespace Chess
 
         public void OnDragEnd()
         {
-            Vector2 targetPosition = image.rectTransform.anchoredPosition;
+            BoardVector targetPosition = Board.GetTilePositionFromAnchoredPos(image.rectTransform.anchoredPosition);
             image.rectTransform.anchoredPosition = currentTileAnchoredPosition;
-            SetMovementTarget(board.GetTilePositionFromAnchoredPos(targetPosition));
+            Board.TryToDoMovement(Position, targetPosition);
 
-            board.ResetHighlightedTiles();
+            Board.ResetHighlightedTiles();
         }
 
     }

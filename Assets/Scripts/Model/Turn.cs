@@ -11,7 +11,7 @@ namespace Chess
         public int Number { get; private set; } = 1;
         public PieceTeam Team { get; private set; }
 
-        public BoardMovement LastMovement { get; private set; }
+        public BoardMovement? LastMovement { get; private set; }
 
         public PieceTeam CurrentCheckedTeam { get; private set; }
 
@@ -52,7 +52,7 @@ namespace Chess
             this.Team = startingTeam;
         }
 
-        public Turn(ChessGame forGame, Board board, PieceTeam team, int number, BoardMovement movement) 
+        public Turn(ChessGame forGame, Board board, PieceTeam team, int number, BoardMovement? movement) 
             : this (forGame, board, team)
         {
             this.Number = number;
@@ -94,6 +94,11 @@ namespace Chess
         public IEnumerable<BoardMovement> GetAllMovementsTo(BoardVector destination)
         {
             return allPossibleMovements.Keys.Where(m => m.to == destination);
+        }
+
+        public IEnumerable<BoardMovement> GetAllMovementsFromAndTo(BoardVector origin, BoardVector destination)
+        {
+            return allPossibleMovements.Keys.Where(m => m.from == origin && m.to == destination);
         }
 
 

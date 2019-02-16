@@ -60,9 +60,11 @@ namespace Chess
         }
 
 
-        public void TryToMoveTo(BoardVector position)
+        public void TryToMoveTo(BoardVector position, ChessPieceType promotion = ChessPieceType.None)
         {
-            ContainingBoard.TryToMovePiece(GetMovementTo(position));
+            BoardMovement movement = GetMovementTo(position);
+            movement.Promotion = promotion;
+            ContainingBoard.TryToMovePiece(movement);
         }
 
 

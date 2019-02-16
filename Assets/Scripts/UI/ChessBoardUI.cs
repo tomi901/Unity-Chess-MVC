@@ -65,8 +65,21 @@ namespace Chess
         public TileUI this[int h, int v] => tiles[h, v];
 
 
+        private GameController controller;
+        public GameController GameController
+        {
+            get => controller;
+            set
+            {
+                controller = value;
+                Model = controller.Game.Board;
+            }
+        }
+        public ChessGame Game => controller.Game;
+
+
         private Board model;
-        public Board Model
+        protected Board Model
         {
             get => model;
             set
@@ -121,6 +134,25 @@ namespace Chess
         }
 
 
+        public void TryToDoMovement(BoardVector from, BoardVector to)
+        {
+            if (from == to) return;
+
+            BoardMovement[] movements = Game.CurrentTurn.GetAllMovementsFromAndTo(from, to).ToArray();
+            if (movements.Length == 1 && movements[0].Promotion == ChessPieceType.None)
+            {
+                Model.TryToMovePiece(new BoardMovement(from, to, ChessPieceType.None));
+            }
+            else if (movements.Length > 0)
+            {
+                var buttonsData = movements.Where(m => m.Promotion != ChessPieceType.None)
+                    .Select(m => (default(PieceTeam), m.Promotion));
+                GameController.PieceSelectionPanel.Show(buttonsData,
+                    pieceType => Model.TryToMovePiece(new BoardMovement(from, to, pieceType)));
+            }
+        }
+
+
         public bool CoordinateIsInBoard(BoardVector position)
         {
             return position.IsInsideBox(tiles.GetLength(0), tiles.GetLength(1));
@@ -145,9 +177,22 @@ namespace Chess
         }
 
 
+
+        public IEnumerable<BoardMovement> GetAllMovementsFromOrigin(BoardVector origin)
+        {
+            return Model.UsedForGame.GetAllMovementsFromTileInCurrentTurn(origin);
+        }
+
+        public IEnumerable<BoardMovement> GetAllMovementsToDestination(BoardVector destination)
+        {
+            return Model.UsedForGame.GetAllMovementsToTileInCurrentTurn(destination);
+        }
+
+
+
         public void HighlightTilesFromMovementOrigin(BoardVector origin)
         {
-            HighlightTiles(Model.UsedForGame.GetAllMovementsFromTileInCurrentTurn(origin).Select(m => m.to));
+            HighlightTiles(GetAllMovementsFromOrigin(origin).Select(m => m.to));
         }
 
         public void HighlightTiles(IEnumerable<BoardVector> tiles)

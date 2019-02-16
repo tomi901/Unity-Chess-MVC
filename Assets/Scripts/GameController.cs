@@ -18,6 +18,10 @@ namespace Chess
         [SerializeField]
         private TextMeshProUGUI turnText = default;
 
+        [SerializeField]
+        private PieceSelectionPanel pieceSelectionPanel = default;
+        public PieceSelectionPanel PieceSelectionPanel => pieceSelectionPanel;
+
 
         private ChessGame game;
         public ChessGame Game
@@ -46,7 +50,7 @@ namespace Chess
         private void StartNewGame()
         {
             Game = ChessGame.StartNew();
-            board.Model = game.Board;
+            board.GameController = this;
         }
 
 
@@ -55,7 +59,8 @@ namespace Chess
             turnText.text = $"Turn {game.CurrentTurnNumber}\n" +
                 $"Team {game.CurrentTurnTeam}\n" +
                 $"Check: {game.CurrentTurnCheck}\n" +
-                $"Filtered turns check: {game.CurrentTurn.FilteredNextTurnsCheck}";
+                $"Filtered turns check: {game.CurrentTurn.FilteredNextTurnsCheck}\n"+
+                $"Move: {game.CurrentTurn.LastMovement}";
         }
 
         // Event listeners
