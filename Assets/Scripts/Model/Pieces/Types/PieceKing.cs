@@ -7,13 +7,13 @@ namespace Chess
 
         public int CurrentMoves { get; private set; } = 0;
 
-        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board)
+        protected override IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board)
         {
             for (int x = -1; x <= 1; x++)
             {
                 for (int y = -1; y <= 1; y++)
                 {
-                    if (x != 0 || y != 0) yield return new BoardVector(x, y);
+                    if (x != 0 || y != 0) yield return new BoardMovement(x, y);
                 }
             }
         }

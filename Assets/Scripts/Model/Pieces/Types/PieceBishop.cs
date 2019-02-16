@@ -5,7 +5,7 @@ namespace Chess
     public class PieceBishop : Piece
     {
 
-        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board)
+        protected override IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board)
         {
             return GetDiagonalLines(board);
         }

@@ -5,7 +5,30 @@ namespace Chess
     public class PiecePawn : Piece
     {
 
+        protected readonly ChessPieceType[] promotablePieces =
+        {
+            ChessPieceType.Rook, ChessPieceType.Knight, ChessPieceType.Bishop, ChessPieceType.Queen
+        };
+
+
         public bool HasMoved { get; private set; } = false;
+
+
+        private int PromotionHeight
+        {
+            get
+            {
+                switch (Team)
+                {
+                    case PieceTeam.White:
+                        return ContainingBoard.BoardLength.vertical;
+                    case PieceTeam.Black:
+                        return 0;
+                    default:
+                        return -1;
+                }
+            }
+        }
 
 
         protected override void OnMovementDone()
@@ -13,23 +36,41 @@ namespace Chess
             HasMoved = true;
         }
 
-        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board)
+        protected override IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board)
         {
-            foreach (BoardVector movement in GetBlockableLine(board, GetTransformedMovementForTeam(0, 1),
-                result => result == MovementAttemptResult.Unblocked, HasMoved ? 1 : 2))
+            IEnumerable<BoardMovement> All()
             {
-                yield return movement;
-            }
-
-            for (int h = -1; h <= 1; h += 2)
-            {
-                BoardVector movement = GetTransformedMovementForTeam(h, 1);
-                if (board.GetMovementAttemptResult(GetMovementToRelative(movement)) == MovementAttemptResult.OtherTeam)
+                foreach (BoardMovement movement in GetBlockableLine(board, GetTransformedMovementForTeam(0, 1),
+                    result => result == MovementAttemptResult.Unblocked, HasMoved ? 1 : 2))
                 {
                     yield return movement;
                 }
+
+                for (int h = -1; h <= 1; h += 2)
+                {
+                    BoardVector movement = GetTransformedMovementForTeam(h, 1);
+                    if (board.GetMovementAttemptResult(GetMovementFromRelative(movement)) == MovementAttemptResult.OtherTeam)
+                    {
+                        yield return (BoardMovement)movement;
+                    }
+                }
+            }
+
+            int promotionHeight = PromotionHeight;
+            foreach (BoardMovement movement in All())
+            {
+                yield return movement;
+
+                if (movement.to.vertical == promotionHeight)
+                {
+                    foreach (ChessPieceType piecePromotion in promotablePieces)
+                    {
+                        yield return new BoardMovement(movement, piecePromotion);
+                    }
+                }
             }
         }
+
 
         protected override Piece InstantiateCopy()
         {

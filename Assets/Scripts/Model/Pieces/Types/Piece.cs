@@ -43,9 +43,14 @@ namespace Chess
             return new BoardMovement(Coordinates, toPosition);
         }
 
-        public BoardMovement GetMovementToRelative(BoardVector relativeMovement)
+        public BoardMovement GetMovementFromRelative(BoardVector relativeMovement)
         {
             return new BoardMovement(Coordinates, Coordinates + relativeMovement);
+        }
+
+        public BoardMovement GetMovementFromRelative(BoardMovement relativeMovement)
+        {
+            return relativeMovement + Coordinates;
         }
 
 
@@ -66,32 +71,24 @@ namespace Chess
 
         }
 
-        public IEnumerable<BoardMovement> GetAllLegalMovements()
-        {
-            return GetAllLegalMovements(true).Select(GetMovementToRelative);
-        }
-
 
         /// <summary>
-        /// Returns all movements in a local way in this piece in a given board that this piece can do.
+        /// Returns all movements in the current board that this piece can do.
         /// </summary>
-        /// <param name="board">The board this piece is in.</param>
-        /// <returns>All valid of movements.</returns>
-        private IEnumerable<BoardVector> GetAllLegalMovements(bool relativePosition)
+        /// <returns>All valid movements for this piece.</returns>
+        public IEnumerable<BoardMovement> GetAllLegalMovements()
         {
-            if (!CurrentTurn.IsInTurn(this))
-                return Enumerable.Empty<BoardVector>();
-
-            Board board = ContainingBoard;
-            IEnumerable<BoardVector> movements = GetAllPosibleRelativeMovements(board)
-                .Where(m => GetMovementAttemptResult(board, m).IsUnblockedOrOtherTeam());
-
-            if (!relativePosition) movements = movements.Select(m => m + Coordinates);
-
-            return movements;
+            if (CurrentTurn.IsInTurn(this))
+            {
+                Board board = ContainingBoard;
+                return GetAllPosibleRelativeMovements(board)
+                    .Where(m => GetMovementAttemptResult(board, m.to).IsUnblockedOrOtherTeam())
+                    .Select(GetMovementFromRelative);
+            }
+            else return Enumerable.Empty<BoardMovement>();
         }
 
-        protected abstract IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board);
+        protected abstract IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board);
 
 
         protected virtual BoardVector GetTransformedMovementForTeam(int horizontal, int vertical)
@@ -146,33 +143,33 @@ namespace Chess
         }
 
 
-        protected IEnumerable<BoardVector> GetHorizontalAndVerticalLines(Board board)
+        protected IEnumerable<BoardMovement> GetHorizontalAndVerticalLines(Board board)
         {
-            foreach (BoardVector movement in GetBlockableLine(board, new BoardVector(0, 1)))
+            foreach (BoardMovement movement in GetBlockableLine(board, new BoardVector(0, 1)))
             {
                 yield return movement;
             }
-            foreach (BoardVector movement in GetBlockableLine(board, new BoardVector(1, 0)))
+            foreach (BoardMovement movement in GetBlockableLine(board, new BoardVector(1, 0)))
             {
                 yield return movement;
             }
-            foreach (BoardVector movement in GetBlockableLine(board, new BoardVector(-1, 0)))
+            foreach (BoardMovement movement in GetBlockableLine(board, new BoardVector(-1, 0)))
             {
                 yield return movement;
             }
-            foreach (BoardVector movement in GetBlockableLine(board, new BoardVector(0, -1)))
+            foreach (BoardMovement movement in GetBlockableLine(board, new BoardVector(0, -1)))
             {
                 yield return movement;
             }
         }
 
-        protected IEnumerable<BoardVector> GetDiagonalLines(Board board)
+        protected IEnumerable<BoardMovement> GetDiagonalLines(Board board)
         {
             for (int x = -1; x <= 1; x += 2)
             {
                 for (int y = -1; y <= 1; y += 2)
                 {
-                    foreach (BoardVector movement in GetBlockableLine(board, new BoardVector(x, y)))
+                    foreach (BoardMovement movement in GetBlockableLine(board, new BoardVector(x, y)))
                     {
                         yield return movement;
                     }
@@ -181,9 +178,9 @@ namespace Chess
         }
 
 
-        public MovementAttemptResult GetMovementAttemptResult(Board board, BoardVector movement)
+        public MovementAttemptResult GetMovementAttemptResult(Board board, BoardVector relativeMovement)
         {
-            return board.GetMovementAttemptResult(GetMovementToRelative(movement));
+            return board.GetMovementAttemptResult(GetMovementFromRelative(relativeMovement));
         }
 
 

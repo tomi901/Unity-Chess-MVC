@@ -6,13 +6,13 @@ namespace Chess
     public class PieceQueen : Piece
     {
 
-        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board)
+        protected override IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board)
         {
-            foreach (BoardVector movement in GetHorizontalAndVerticalLines(board))
+            foreach (BoardMovement movement in GetHorizontalAndVerticalLines(board))
             {
                 yield return movement;
             }
-            foreach (BoardVector movement in GetDiagonalLines(board))
+            foreach (BoardMovement movement in GetDiagonalLines(board))
             {
                 yield return movement;
             }

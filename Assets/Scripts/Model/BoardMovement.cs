@@ -45,6 +45,11 @@ namespace Chess
         }
 
 
+        public BoardMovement(BoardMovement movement, ChessPieceType promotion = ChessPieceType.None)
+            : this(movement.from, movement.to, promotion)
+        {
+        }
+
         public BoardMovement(BoardVector from, BoardVector to, ChessPieceType promotion = ChessPieceType.None)
             : this (to, promotion)
         {
@@ -59,6 +64,11 @@ namespace Chess
             this.from = default;
             this.to = to;
             this.promotion = promotion;
+        }
+
+        public BoardMovement(int toH, int toV, ChessPieceType promotion = ChessPieceType.None)
+            : this(new BoardVector(toH, toV))
+        {
         }
 
 

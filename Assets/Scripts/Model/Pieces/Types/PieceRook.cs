@@ -5,7 +5,7 @@ namespace Chess
     public class PieceRook : Piece
     {
 
-        protected override IEnumerable<BoardVector> GetAllPosibleRelativeMovements(Board board)
+        protected override IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board)
         {
             return GetHorizontalAndVerticalLines(board);
         }
