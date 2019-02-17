@@ -59,8 +59,6 @@ namespace Chess
             int promotionHeight = PromotionHeight;
             foreach (BoardMovement movement in All())
             {
-                yield return movement;
-
                 if ((Coordinates.vertical + movement.to.vertical) == promotionHeight)
                 {
                     foreach (ChessPieceType piecePromotion in promotablePieces)
@@ -68,6 +66,7 @@ namespace Chess
                         yield return new BoardMovement(movement, piecePromotion);
                     }
                 }
+                else yield return movement;
             }
         }
 

@@ -87,7 +87,9 @@ namespace Chess
                 model = value;
                 Size = model.BoardLength;
 
-                foreach (Piece piece in model.Pieces) AddPiece(piece);
+                SetPieces(model.Pieces);
+
+                model.OnPieceAdded += OnPieceAddedListener;
             }
         }
 
@@ -121,6 +123,21 @@ namespace Chess
             }
         }
 
+
+        private void ClearPieces()
+        {
+            pieces.ForEach(p => Destroy(p.gameObject));
+            pieces.Clear();
+        }
+
+        private void SetPieces(IEnumerable<Piece> pieces)
+        {
+            ClearPieces();
+            foreach (Piece piece in pieces)
+            {
+                AddPiece(piece);
+            }
+        }
 
         private void AddPiece(Piece piece)
         {
@@ -211,6 +228,16 @@ namespace Chess
         {
             foreach (TileUI tile in tiles) tile.Highlighted = false;
         }
+
+
+        #region Event Listeners
+
+        private void OnPieceAddedListener(object sender, Piece piece)
+        {
+            AddPiece(piece);
+        }
+
+        #endregion
 
     }
 }

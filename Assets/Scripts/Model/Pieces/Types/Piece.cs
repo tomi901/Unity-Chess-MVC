@@ -60,14 +60,6 @@ namespace Chess
         }
 
 
-        public void TryToMoveTo(BoardVector position, ChessPieceType promotion = ChessPieceType.None)
-        {
-            BoardMovement movement = GetMovementTo(position);
-            movement.Promotion = promotion;
-            ContainingBoard.TryToMovePiece(movement);
-        }
-
-
         protected virtual void OnMovementDone()
         {
 

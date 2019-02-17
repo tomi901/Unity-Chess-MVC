@@ -19,6 +19,9 @@ namespace Chess
 
         private Vector2 currentTileAnchoredPosition;
 
+        private Tween currentTween;
+        public bool DoAnimations => true;
+
 
         public event System.Action OnObjectDestroy = () => { };
 
@@ -78,19 +81,35 @@ namespace Chess
             currentTileAnchoredPosition = image.rectTransform.anchoredPosition = TargetPosition;
         }
 
-        private void OnDestroy() => OnObjectDestroy();
+        private void OnDestroy()
+        {
+            CompleteCurrentTween();
+            OnObjectDestroy();
+        }
+
+        private void CompleteCurrentTween()
+        {
+            if (currentTween != null && currentTween.IsActive())
+                currentTween.Kill(true);
+        }
 
 
-        // Model Listeners
+        #region Model Listeners
 
         private void OnMoveToEventListener(object sender, PieceMovementArgs args)
         {
             currentTileAnchoredPosition = TargetPosition;
 
-            Board.AllPiecesDraggable = false;
-            Tweener tween = image.rectTransform.DOAnchorPos(currentTileAnchoredPosition, board.PieceMoveDuration);
-            tween.SetRecyclable(true);
-            tween.OnComplete(() => Board.AllPiecesDraggable = true);
+            if (DoAnimations)
+            {
+                Board.AllPiecesDraggable = false;
+
+                CompleteCurrentTween();
+                currentTween = image.rectTransform.DOAnchorPos(currentTileAnchoredPosition, board.PieceMoveDuration);
+                currentTween.SetRecyclable(true);
+                currentTween.OnComplete(() => Board.AllPiecesDraggable = true);
+            }
+            else image.rectTransform.anchoredPosition = currentTileAnchoredPosition;
         }
 
         private void OnCaptureEventListener(object sender, System.EventArgs args)
@@ -98,8 +117,10 @@ namespace Chess
             Destroy(gameObject);
         }
 
+        #endregion
 
-        // Draggable events
+
+        #region Draggable Events
 
         public void OnDragBegin()
         {
@@ -114,6 +135,8 @@ namespace Chess
 
             Board.ResetHighlightedTiles();
         }
+
+        #endregion
 
     }
 }

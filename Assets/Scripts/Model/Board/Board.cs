@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,6 +34,9 @@ namespace Chess
         public int PieceCount => this.Count(tile => tile.HasPiece);
 
 
+        public event EventHandler<Piece> OnPieceAdded = (o, e) => { };
+
+
         public Board(BoardVector size)
         {
             tiles = new Tile[size.horizontal, size.vertical];
@@ -60,25 +64,31 @@ namespace Chess
         }
 
 
-        public void PlacePiece(Piece piece, BoardVector position)
+        public void PlacePiece(Piece piece, BoardVector position, bool checkEmptySpace = true)
         {
-            if (this[position].HasPiece)
+            if (checkEmptySpace && this[position].HasPiece)
             {
-                throw new System.InvalidOperationException($"Can't place piece '{piece}': " +
+                throw new InvalidOperationException($"Can't place piece '{piece}': " +
                     $"There's overlapping pieces at position " +
                     $"'{position.ToStringCoordinates(true)}'");
             }
 
             this[position].CurrentPiece = piece;
+            OnPieceAdded(this, piece);
         }
 
 
         public void DoMovement(BoardMovement movement)
         {
             if (!MovementIsInside(movement))
-                throw new System.ArgumentOutOfRangeException(nameof(movement));
+                throw new ArgumentOutOfRangeException(nameof(movement));
 
-            this[movement.to].CurrentPiece = this[movement.from].CurrentPiece;
+            Piece movingPiece = this[movement.from].CurrentPiece;
+            this[movement.to].CurrentPiece = movingPiece;
+            if (movement.Promotion != ChessPieceType.None)
+            {
+                PlacePiece(ChessPieces.InstantiateNew(movement.Promotion, movingPiece.Team), movement.to, false);
+            }
         }
 
 
