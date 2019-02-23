@@ -15,9 +15,14 @@ namespace Chess
                 }
             }
 
+            // Castling
             for (int x = -2; x <= 2; x += 4)
             {
-                yield return new BoardMovement(x, Coordinates.vertical);
+                BoardVector movement = new BoardVector(x, 0);
+                Piece foundPiece = ContainingBoard.Raycast(Coordinates, movement);
+                UnityEngine.Debug.Log($"{Coordinates} {movement} {foundPiece}");
+                if (foundPiece is PieceRook)
+                    yield return new BoardMovement(movement);
             }
         }
 

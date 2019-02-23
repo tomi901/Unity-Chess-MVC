@@ -92,6 +92,22 @@ namespace Chess
         }
 
 
+        public Piece Raycast(BoardVector from, BoardVector direction)
+        {
+            if (direction.IsZero || !PositionIsInside(from))
+                return null;
+
+            direction = direction.Normalized;
+            for (BoardVector current = from + direction; PositionIsInside(current); current += direction)
+            {
+                Piece piece = this[current].CurrentPiece;
+                if (piece != null)
+                    return piece;
+            }
+            return null;
+        }
+
+
         public bool TryToMovePiece(BoardMovement movement) => UsedForGame.TryToDoMovement(movement);
 
 

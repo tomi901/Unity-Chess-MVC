@@ -32,7 +32,7 @@ namespace Chess
         public Board ContainingBoard => CurrentTile.Board;
         public Turn CurrentTurn => ContainingBoard.UsedInTurn;
 
-        public BoardVector Coordinates => CurrentTile?.Coordinates ?? default;
+        public BoardVector Coordinates => CurrentTile?.Coordinates ?? new BoardVector(-1, -1);
         public int Rank => GetRank(Coordinates.vertical);
 
 

@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 
 namespace Chess
 {
-    public struct BoardVector
+    public struct BoardVector : IEquatable<BoardVector>
     {
 
         public const string horizontalCharacters = "abcdefgh";
+
+        public static BoardVector Zero => new BoardVector(0);
 
         public static IEnumerable<BoardVector> GetRange(BoardVector size)
         {
@@ -19,8 +22,17 @@ namespace Chess
             }
         }
 
+        private static int NormalizeInt(int number)
+        {
+            return (number != 0) ? ((number > 0) ? 1 : -1) : 0;
+        }
+
 
         public int horizontal, vertical;
+
+
+        public bool IsZero => horizontal == 0 && vertical == 0;
+        public BoardVector Normalized => new BoardVector(NormalizeInt(horizontal), NormalizeInt(vertical));
 
 
         public BoardVector(int size) : this(size, size) { }
@@ -66,9 +78,12 @@ namespace Chess
         {
             if (!(obj is BoardVector)) return false;
 
-            var otherCoords = (BoardVector)obj;
-            return horizontal == otherCoords.horizontal &&
-                   vertical == otherCoords.vertical;
+            return Equals((BoardVector)obj);
+        }
+
+        public bool Equals(BoardVector other)
+        {
+            return horizontal == other.horizontal && vertical == other.vertical;
         }
 
         public override int GetHashCode()
@@ -78,6 +93,7 @@ namespace Chess
             hashCode = hashCode * -1521134295 + vertical.GetHashCode();
             return hashCode;
         }
+
 
         public override string ToString()
         {
