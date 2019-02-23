@@ -54,6 +54,10 @@ namespace Chess
         public Board Board => CurrentTurn.Board;
 
 
+        public bool AllowCastling => true;
+        public bool AllowEnPassant => true;
+
+
         public event EventHandler OnTurnChange = (o, e) => { };
         public event EventHandler OnGameEnded = (o, e) => { };
 

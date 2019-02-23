@@ -20,7 +20,11 @@ namespace Chess
 
                 currentTile?.CurrentPiece?.Capture(this);
 
-                if (!moveArgs.HasMovedToAnotherBoard) OnMovementDone();
+                if (!moveArgs.HasMovedToAnotherBoard)
+                {
+                    MovementsDone++;
+                    OnMovementDone();
+                }
                 OnCoordinatesChanged(this, moveArgs);
             }
         }
@@ -28,6 +32,10 @@ namespace Chess
         public Board ContainingBoard => CurrentTile.Board;
         public Turn CurrentTurn => ContainingBoard.UsedInTurn;
         public BoardVector Coordinates => CurrentTile?.Coordinates ?? default;
+
+
+        public int MovementsDone { get; private set; } = 0;
+        public bool HasMoved => MovementsDone > 0;
 
 
         public PieceTeam Team { get; set; }
@@ -181,7 +189,8 @@ namespace Chess
         public Piece MakeCopy()
         {
             Piece newPiece = InstantiateCopy();
-            newPiece.Team = Team;
+            newPiece.Team = this.Team;
+            newPiece.MovementsDone = this.MovementsDone;
             return newPiece;
         }
 

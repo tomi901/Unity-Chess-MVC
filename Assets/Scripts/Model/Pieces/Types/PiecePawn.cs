@@ -11,9 +11,6 @@ namespace Chess
         };
 
 
-        public bool HasMoved { get; private set; } = false;
-
-
         private int PromotionHeight
         {
             get
@@ -28,12 +25,6 @@ namespace Chess
                         return -1;
                 }
             }
-        }
-
-
-        protected override void OnMovementDone()
-        {
-            HasMoved = true;
         }
 
         protected override IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board)
@@ -73,7 +64,7 @@ namespace Chess
 
         protected override Piece InstantiateCopy()
         {
-            return new PiecePawn() { HasMoved = this.HasMoved };
+            return new PiecePawn();
         }
 
     }
