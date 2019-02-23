@@ -5,27 +5,13 @@ namespace Chess
     public class PiecePawn : Piece
     {
 
+        public const int PromoteRank = 8;
+
         protected readonly ChessPieceType[] promotablePieces =
         {
             ChessPieceType.Rook, ChessPieceType.Knight, ChessPieceType.Bishop, ChessPieceType.Queen
         };
 
-
-        private int PromotionHeight
-        {
-            get
-            {
-                switch (Team)
-                {
-                    case PieceTeam.White:
-                        return ContainingBoard.BoardLength.vertical - 1;
-                    case PieceTeam.Black:
-                        return 0;
-                    default:
-                        return -1;
-                }
-            }
-        }
 
         protected override IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board)
         {
@@ -47,10 +33,9 @@ namespace Chess
                 }
             }
 
-            int promotionHeight = PromotionHeight;
             foreach (BoardMovement movement in All())
             {
-                if ((Coordinates.vertical + movement.to.vertical) == promotionHeight)
+                if (GetRank(Coordinates.vertical + movement.to.vertical) == PromoteRank)
                 {
                     foreach (ChessPieceType piecePromotion in promotablePieces)
                     {

@@ -31,7 +31,9 @@ namespace Chess
 
         public Board ContainingBoard => CurrentTile.Board;
         public Turn CurrentTurn => ContainingBoard.UsedInTurn;
+
         public BoardVector Coordinates => CurrentTile?.Coordinates ?? default;
+        public int Rank => GetRank(Coordinates.vertical);
 
 
         public int MovementsDone { get; private set; } = 0;
@@ -43,7 +45,21 @@ namespace Chess
 
         public event EventHandler<PieceMovementArgs> OnCoordinatesChanged = (o, e) => { };
         public event EventHandler<PieceSetTargetMovementArgs> OnMovementTargetSet = (o, e) => { };
-        public event EventHandler<EventArgs> OnCapture = (o, e) => { };
+        public event EventHandler OnCapture = (o, e) => { };
+
+
+        public int GetRank(int verticalCoord)
+        {
+            switch (Team)
+            {
+                case PieceTeam.White:
+                    return verticalCoord + 1;
+                case PieceTeam.Black:
+                    return ContainingBoard.BoardLength.vertical - verticalCoord;
+                default:
+                    return -1;
+            }
+        }
 
 
         public BoardMovement GetMovementTo(BoardVector toPosition)

@@ -14,6 +14,11 @@ namespace Chess
                     if (x != 0 || y != 0) yield return new BoardMovement(x, y);
                 }
             }
+
+            for (int x = -2; x <= 2; x += 4)
+            {
+                yield return new BoardMovement(x, Coordinates.vertical);
+            }
         }
 
         protected override void OnMovementDone()
