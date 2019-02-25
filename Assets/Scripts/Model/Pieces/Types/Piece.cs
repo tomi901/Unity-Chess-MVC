@@ -30,7 +30,9 @@ namespace Chess
         }
 
         public Board ContainingBoard => CurrentTile.Board;
+
         public Turn CurrentTurn => ContainingBoard.UsedInTurn;
+        public bool IsInTurn => CurrentTurn.IsInTurn(this);
 
         public BoardVector Coordinates => CurrentTile?.Coordinates ?? new BoardVector(-1, -1);
         public int Rank => GetRank(Coordinates.vertical);
@@ -96,7 +98,7 @@ namespace Chess
         /// <returns>All valid movements for this piece.</returns>
         public IEnumerable<BoardMovement> GetAllLegalMovements()
         {
-            if (CurrentTurn.IsInTurn(this))
+            if (IsInTurn)
             {
                 Board board = ContainingBoard;
                 return GetAllPosibleRelativeMovements(board)
@@ -107,6 +109,18 @@ namespace Chess
         }
 
         protected abstract IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board);
+
+
+        public IEnumerable<BoardMovement> GetAllExtraMovements()
+        {
+            return IsInTurn ?
+                GetAllExtraRelativeMovements(ContainingBoard).Select(GetMovementFromRelative) :
+                Enumerable.Empty<BoardMovement>();
+        }
+
+        protected virtual IEnumerable<BoardMovement> GetAllExtraRelativeMovements(Board board) => 
+            Enumerable.Empty<BoardMovement>();
+
 
 
         protected virtual BoardVector GetTransformedMovementForTeam(int horizontal, int vertical)

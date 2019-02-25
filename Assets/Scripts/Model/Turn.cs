@@ -168,6 +168,14 @@ namespace Chess
             }
 
 
+            // Add all the extra movements
+
+            foreach (BoardMovement movement in Board.Pieces.SelectMany(piece => piece.GetAllExtraMovements()))
+            {
+                allPossibleMovements.Add(movement, null);
+            }
+
+
             // First simulate all the possible turns
 
             List<KeyValuePair<BoardMovement, Turn>> turnsToModify = new List<KeyValuePair<BoardMovement, Turn>>();

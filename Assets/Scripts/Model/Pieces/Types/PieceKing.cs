@@ -14,17 +14,23 @@ namespace Chess
                     if (x != 0 || y != 0) yield return new BoardMovement(x, y);
                 }
             }
+        }
 
+        protected override IEnumerable<BoardMovement> GetAllExtraRelativeMovements(Board board)
+        {
             // Castling
-            for (int x = -2; x <= 2; x += 4)
+            if (Rank == 1 && !HasMoved)
             {
-                BoardVector movement = new BoardVector(x, 0);
-                Piece foundPiece = ContainingBoard.Raycast(Coordinates, movement);
-                UnityEngine.Debug.Log($"{Coordinates} {movement} {foundPiece}");
-                if (foundPiece is PieceRook)
-                    yield return new BoardMovement(movement);
+                for (int x = -2; x <= 2; x += 4)
+                {
+                    BoardVector movement = new BoardVector(x, 0);
+                    Piece foundPiece = board.Raycast(Coordinates, movement);
+                    if (foundPiece is PieceRook && foundPiece.Rank == 1 && !foundPiece.HasMoved)
+                        yield return new BoardMovement(movement);
+                }
             }
         }
+
 
         protected override void OnMovementDone()
         {
