@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Chess
 {
@@ -21,16 +22,23 @@ namespace Chess
             // Castling
             if (Rank == 1 && !HasMoved)
             {
+                var nextMovements = new HashSet<BoardVector>(CurrentTurn.NextCalculatedTurnsMovements
+                    .Select(kvp => kvp.Key.to));
+
                 for (int x = -2; x <= 2; x += 4)
                 {
                     BoardVector movement = new BoardVector(x, 0);
+
+                    BoardVector nextTilePos = Coordinates + movement.Normalized;
+                    if (nextMovements.Contains(nextTilePos))
+                        continue;
+
                     Piece foundPiece = board.Raycast(Coordinates, movement);
                     if (foundPiece is PieceRook && foundPiece.Rank == 1 && !foundPiece.HasMoved)
                         yield return new BoardMovement(movement);
                 }
             }
         }
-
 
         protected override void OnMovementDone()
         {

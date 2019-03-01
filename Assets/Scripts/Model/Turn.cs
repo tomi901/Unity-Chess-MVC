@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -31,6 +32,20 @@ namespace Chess
         private ReadOnlyDictionary<BoardMovement, Turn> allPossibleMovementsRo = null;
         public ReadOnlyDictionary<BoardMovement, Turn> AllPossibleMovements => allPossibleMovementsRo ?? 
             (allPossibleMovementsRo = new ReadOnlyDictionary<BoardMovement, Turn>(allPossibleMovements));
+
+
+        private readonly Dictionary<BoardMovement, Turn> removedMovements = new Dictionary<BoardMovement, Turn>();
+
+        private ReadOnlyDictionary<BoardMovement, Turn> removedMovementsRo = null;
+        public ReadOnlyDictionary<BoardMovement, Turn> RemovedMovements => removedMovementsRo ??
+            (removedMovementsRo = new ReadOnlyDictionary<BoardMovement, Turn>(removedMovements));
+
+
+        public IEnumerable<Turn> AllCalculatedTurns =>
+            allPossibleMovements.Select(kvp => kvp.Value).Where(turn => turn != null);
+
+        public IEnumerable<KeyValuePair<BoardMovement, Turn>> NextCalculatedTurnsMovements =>
+            AllCalculatedTurns.SelectMany(turn => turn.AllPossibleMovements);
 
 
         private bool movementsAreCached = false, cachedMovementsAreFiltered = false;
@@ -118,6 +133,7 @@ namespace Chess
             if (allPossibleMovements.TryGetValue(movement, out Turn next) && next != null)
             {
                 allPossibleMovements.Clear();
+                removedMovements.Clear();
                 foreach (var kvp in next.allPossibleMovements)
                 {
                     allPossibleMovements.Add(kvp.Key, kvp.Value);
@@ -168,25 +184,31 @@ namespace Chess
             }
 
 
-            // Add all the extra movements
-
-            foreach (BoardMovement movement in Board.Pieces.SelectMany(piece => piece.GetAllExtraMovements()))
-            {
-                allPossibleMovements.Add(movement, null);
-            }
-
-
             // First simulate all the possible turns
 
             List<KeyValuePair<BoardMovement, Turn>> turnsToModify = new List<KeyValuePair<BoardMovement, Turn>>();
-            foreach (KeyValuePair<BoardMovement, Turn> kvp in allPossibleMovements.Where(kvp => kvp.Value == null))
-            {
-                Turn simulatedTurn = this.MakeCopy();
-                simulatedTurn.Next(kvp.Key);
-                turnsToModify.Add(new KeyValuePair<BoardMovement, Turn>(kvp.Key, simulatedTurn));
-            }
-            turnsToModify.ForEach(kvp => allPossibleMovements[kvp.Key] = kvp.Value);
 
+            void SimulateTurns()
+            {
+                turnsToModify.Clear();
+                foreach (KeyValuePair<BoardMovement, Turn> kvp in allPossibleMovements.Where(kvp => kvp.Value == null))
+                {
+                    Turn simulatedTurn = this.MakeCopy();
+                    simulatedTurn.Next(kvp.Key);
+                    turnsToModify.Add(new KeyValuePair<BoardMovement, Turn>(kvp.Key, simulatedTurn));
+                }
+                turnsToModify.ForEach(kvp => allPossibleMovements[kvp.Key] = kvp.Value);
+            }
+
+            SimulateTurns();
+
+            // Add extra movements and resimulate them
+
+            foreach (BoardMovement extraMovement in Board.Pieces.SelectMany(piece => piece.GetAllExtraMovements()))
+            {
+                allPossibleMovements.Add(extraMovement, null);
+            }
+            SimulateTurns();
 
             // Then filter all the possible movements
 
@@ -200,6 +222,7 @@ namespace Chess
                     FilteredNextTurnsCheck = movementTurn.Value.CurrentCheckedTeam;
                 }
                 allPossibleMovements.Remove(movementTurn.Key);
+                removedMovements.Add(movementTurn.Key, movementTurn.Value);
             }
 
             // Update the possible movements lookup after we filter succesfully
