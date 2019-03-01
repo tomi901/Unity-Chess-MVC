@@ -7,8 +7,13 @@ namespace Chess
     {
 
         public BoardVector from, to;
+        public BoardVector DeltaMovement => to - from;
 
         private ChessPieceType promotion;
+        /// <summary>
+        /// If not equals to <see cref="ChessPieceType.None"/>, the actual piece will be "destroyed" and
+        /// replaced with a new one of this type.
+        /// </summary>
         public ChessPieceType Promotion
         {
             get => promotion;

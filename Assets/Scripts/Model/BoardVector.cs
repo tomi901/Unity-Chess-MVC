@@ -22,7 +22,7 @@ namespace Chess
             }
         }
 
-        private static int NormalizeInt(int number)
+        public static int NormalizeInt(int number)
         {
             return (number != 0) ? ((number > 0) ? 1 : -1) : 0;
         }

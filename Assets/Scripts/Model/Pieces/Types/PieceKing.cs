@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Chess
 {
     public class PieceKing : Piece
     {
+
+        public const int CastlingDistance = 2;
 
         protected override IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board)
         {
@@ -25,7 +28,7 @@ namespace Chess
                 var nextMovements = new HashSet<BoardVector>(CurrentTurn.NextCalculatedTurnsMovements
                     .Select(kvp => kvp.Key.to));
 
-                for (int x = -2; x <= 2; x += 4)
+                for (int x = -CastlingDistance; x <= CastlingDistance; x += CastlingDistance * 2)
                 {
                     BoardVector movement = new BoardVector(x, 0);
 
@@ -40,11 +43,22 @@ namespace Chess
             }
         }
 
-        protected override void OnMovementDone()
+        protected override void OnMovementDone(BoardVector deltaMovement)
         {
             if (MovementsDone >= 50)
             {
                 // Tie
+            }
+
+            // After castling
+            if (Math.Abs(deltaMovement.horizontal) == CastlingDistance)
+            {
+                Piece castlingRook = ContainingBoard.Raycast(Coordinates, deltaMovement) as PieceRook;
+                if (castlingRook == null)
+                    throw new Exception("Castling invalid, no rook found.");
+
+                BoardVector rookTargetPos = Coordinates - deltaMovement.Normalized;
+                ContainingBoard.DoMovement(new BoardMovement(castlingRook.Coordinates, rookTargetPos));
             }
         }
 

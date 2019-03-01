@@ -15,7 +15,8 @@ namespace Chess
             {
                 if (value == currentTile) return;
 
-                var moveArgs = new PieceMovementArgs(currentTile, value);
+                Tile previousTile = currentTile;
+                var moveArgs = new PieceMovementArgs(previousTile, value);
                 currentTile = value;
 
                 currentTile?.CurrentPiece?.Capture(this);
@@ -23,7 +24,7 @@ namespace Chess
                 if (!moveArgs.HasMovedToAnotherBoard)
                 {
                     MovementsDone++;
-                    OnMovementDone();
+                    OnMovementDone(Coordinates - previousTile.Coordinates);
                 }
                 OnCoordinatesChanged(this, moveArgs);
             }
@@ -86,10 +87,7 @@ namespace Chess
         }
 
 
-        protected virtual void OnMovementDone()
-        {
-
-        }
+        protected virtual void OnMovementDone(BoardVector deltaMovement) { }
 
 
         /// <summary>
