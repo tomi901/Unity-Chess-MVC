@@ -13,7 +13,7 @@ namespace Chess
         };
 
 
-        public bool LastMovementWasDouble { get; protected set; }
+        public int LastDoubleMovementTurn { get; protected set; } = int.MinValue;
 
 
         protected override IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board)
@@ -62,13 +62,14 @@ namespace Chess
 
         protected bool EnPassantRuleCapturable(PiecePawn capturedBy)
         {
-            return this.Team != capturedBy.Team && this.LastMovementWasDouble;
+            return Team != capturedBy.Team && (LastDoubleMovementTurn + 1 == CurrentTurn.Number);
         }
 
 
         protected override void OnMovementDone(BoardVector deltaMovement)
         {
-            LastMovementWasDouble = System.Math.Abs(deltaMovement.vertical) == 2;
+            if (System.Math.Abs(deltaMovement.vertical) == 2)
+                LastDoubleMovementTurn = CurrentTurn.Number;
 
             // After a diagonal movement we check one tile behind to check if we should apply
             // En Passant rule
@@ -84,7 +85,7 @@ namespace Chess
         {
             return new PiecePawn()
             {
-                LastMovementWasDouble = this.LastMovementWasDouble
+                LastDoubleMovementTurn = this.LastDoubleMovementTurn
             };
         }
 
