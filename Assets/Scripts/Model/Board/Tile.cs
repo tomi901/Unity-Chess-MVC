@@ -37,7 +37,7 @@ namespace Chess
             Coordinates = coordinates;
         }
 
-        private void ClearPiece()
+        public void ClearPiece()
         {
             currentPiece = null;
         }

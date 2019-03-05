@@ -81,8 +81,9 @@ namespace Chess
         }
 
 
-        private void Capture(Piece byPiece)
+        protected void Capture(Piece byPiece)
         {
+            CurrentTile.ClearPiece();
             OnCapture(this, EventArgs.Empty);
         }
 
