@@ -75,7 +75,7 @@ namespace Chess
             // After a diagonal movement we check one tile behind to check if we should apply
             // En Passant rule
             if (deltaMovement.horizontal != 0 && ContainingBoard[Coordinates - GetTransformedMovementForTeam(0, 1)]
-                .CurrentPiece is PiecePawn pawn && pawn.EnPassantRuleCapturable(this))
+                .CurrentPiece is PiecePawn pawn && pawn.Team != this.Team)
             {
                 pawn.Capture(this);
             }
