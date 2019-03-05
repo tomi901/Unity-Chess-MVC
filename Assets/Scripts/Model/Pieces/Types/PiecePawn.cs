@@ -62,7 +62,8 @@ namespace Chess
 
         protected bool EnPassantRuleCapturable(PiecePawn capturedBy)
         {
-            return Team != capturedBy.Team && (LastDoubleMovementTurn + 1 == CurrentTurn.Number);
+            return Team != capturedBy.Team && (LastDoubleMovementTurn + 1 == CurrentTurn.Number) &&
+                capturedBy.Rank == 5;
         }
 
 
