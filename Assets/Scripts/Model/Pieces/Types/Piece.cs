@@ -24,6 +24,8 @@ namespace Chess
                 if (!moveArgs.HasMovedToAnotherBoard)
                 {
                     MovementsDone++;
+                    CurrentTurn.SetPieceMoved(this);
+
                     OnMovementDone(Coordinates - previousTile.Coordinates);
                 }
                 OnCoordinatesChanged(this, moveArgs);
@@ -83,7 +85,9 @@ namespace Chess
 
         protected void Capture(Piece byPiece)
         {
+            CurrentTurn.SetPieceCaptured(this);
             CurrentTile.ClearPiece();
+
             OnCapture(this, EventArgs.Empty);
         }
 

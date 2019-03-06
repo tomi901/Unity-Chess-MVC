@@ -60,7 +60,10 @@ namespace Chess
                 $"Team {game.CurrentTurnTeam}\n" +
                 $"Check: {game.CurrentTurnCheck}\n" +
                 $"Filtered turns check: {game.CurrentTurn.FilteredNextTurnsCheck}\n"+
-                $"Move: {game.CurrentTurn.LastMovement}";
+                $"Move: {game.CurrentTurn.LastMovement}\n" +
+                $"Moved piece: {game.CurrentTurn.MovedPiece}\n" +
+                $"Captured piece: {game.CurrentTurn.CapturedPiece}\n" +
+                $"Draw movements: {game.CurrentTurnDrawMovements}";
         }
 
         // Event listeners

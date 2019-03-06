@@ -50,6 +50,8 @@ namespace Chess
 
         public PieceTeam CurrentTurnCheck => currentTurn.CurrentCheckedTeam;
 
+        public int CurrentTurnDrawMovements => currentTurn.DrawMovements;
+
 
         public Board Board => CurrentTurn.Board;
 
@@ -57,6 +59,8 @@ namespace Chess
         public bool AllowCastling => true;
         public bool AllowEnPassant => true;
 
+        public int DrawMovementsQuantity { get; } = 50;
+        public bool UseDrawMovements => DrawMovementsQuantity > 0;
 
         public event EventHandler OnTurnChange = (o, e) => { };
         public event EventHandler OnGameEnded = (o, e) => { };

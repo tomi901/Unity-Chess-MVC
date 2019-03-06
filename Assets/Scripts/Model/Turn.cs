@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -20,17 +19,26 @@ namespace Chess
         public bool IsAnyFilteredTurnChecked => FilteredNextTurnsCheck != PieceTeam.None;
 
 
-        private readonly ChessGame game;
-        public ChessGame ForGame => game;
+        public Piece MovedPiece { get; private set; }
 
-        private readonly Board board;
-        public Board Board => board;
+        public Piece CapturedPiece { get; private set; }
+        public bool PieceWasCaptured => CapturedPiece != null;
+
+        // Wrote the flag inverted because it was easier to think the logic according to rules
+        private bool NotDrawMovementTurn => MovedPiece is PiecePawn || PieceWasCaptured;
+        public bool DrawMovementTurn => !NotDrawMovementTurn;
+
+        public int DrawMovements { get; private set; } = 0;
+
+
+        public ChessGame ForGame { get; }
+        public Board Board { get; }
 
 
         private readonly Dictionary<BoardMovement, Turn> allPossibleMovements = new Dictionary<BoardMovement, Turn>();
 
         private ReadOnlyDictionary<BoardMovement, Turn> allPossibleMovementsRo = null;
-        public ReadOnlyDictionary<BoardMovement, Turn> AllPossibleMovements => allPossibleMovementsRo ?? 
+        public ReadOnlyDictionary<BoardMovement, Turn> AllPossibleMovements => allPossibleMovementsRo ??
             (allPossibleMovementsRo = new ReadOnlyDictionary<BoardMovement, Turn>(allPossibleMovements));
 
 
@@ -59,20 +67,27 @@ namespace Chess
 
         public Turn(ChessGame forGame, Board board, PieceTeam startingTeam)
         {
-            this.game = forGame;
+            this.ForGame = forGame;
 
-            this.board = board;
+            this.Board = board;
             board.UsedInTurn = this;
 
             this.Team = startingTeam;
         }
 
-        public Turn(ChessGame forGame, Board board, PieceTeam team, int number, BoardMovement? movement) 
-            : this (forGame, board, team)
+        public Turn(ChessGame forGame, Board board, PieceTeam team, int number, BoardMovement? movement)
+            : this(forGame, board, team)
         {
             this.Number = number;
             this.LastMovement = movement;
         }
+
+
+        // We do this in case we need a list of moved and captured pieces in the future
+
+        public void SetPieceMoved(Piece piece) => MovedPiece = piece;
+
+        public void SetPieceCaptured(Piece piece) => CapturedPiece = piece;
 
 
         private static PieceTeam GetNextTeam(PieceTeam currentTeam)
@@ -119,32 +134,72 @@ namespace Chess
 
         public void Next(BoardMovement movement)
         {
-            Board.DoMovement(movement);
+            MovedPiece = CapturedPiece = null;
 
-            movementsAreCached = cachedMovementsAreFiltered = false;
+            Board.DoMovement(movement);
 
             Number++;
             Team = GetNextTeam(Team);
             LastMovement = movement;
             FilteredNextTurnsCheck = PieceTeam.None;
 
+            // Check for draw
+            if (ForGame.UseDrawMovements)
+            {
+                if (DrawMovementTurn)
+                    DrawMovements++;
+                else
+                    DrawMovements = 0;
+
+                if (DrawMovements >= ForGame.DrawMovementsQuantity)
+                {
+                    allPossibleMovements.Clear();
+                    removedMovements.Clear();
+
+                    OnNext(this, EventArgs.Empty);
+                    return;
+                }
+            }
+
+            movementsAreCached = cachedMovementsAreFiltered = false;
+
             // Cache all the movements, but first try to find if the next turn is in the current cache
             // and copy it's movements
             if (allPossibleMovements.TryGetValue(movement, out Turn next) && next != null)
             {
-                allPossibleMovements.Clear();
-                removedMovements.Clear();
-                foreach (var kvp in next.allPossibleMovements)
-                {
-                    allPossibleMovements.Add(kvp.Key, kvp.Value);
-                }
-
-                CurrentCheckedTeam = next.CurrentCheckedTeam;
-                movementsAreCached = true;
+                CopyTurn(next);
             }
             else CacheCurrentPossibleMovements();
 
             OnNext(this, EventArgs.Empty);
+        }
+
+
+        private void CopyTurn(Turn turnToCopy)
+        {
+            allPossibleMovements.Clear();
+            foreach (var kvp in turnToCopy.allPossibleMovements)
+            {
+                allPossibleMovements.Add(kvp.Key, kvp.Value);
+            }
+
+            removedMovements.Clear();
+            foreach (var kvp in turnToCopy.removedMovements)
+            {
+                removedMovements.Add(kvp.Key, kvp.Value);
+            }
+
+            movementsAreCached = turnToCopy.movementsAreCached;
+            cachedMovementsAreFiltered = turnToCopy.cachedMovementsAreFiltered;
+
+            Number = turnToCopy.Number;
+            LastMovement = turnToCopy.LastMovement;
+
+            CurrentCheckedTeam = turnToCopy.CurrentCheckedTeam;
+            FilteredNextTurnsCheck = turnToCopy.FilteredNextTurnsCheck;
+
+            MovedPiece = turnToCopy.MovedPiece;
+            CapturedPiece = turnToCopy.CapturedPiece;
         }
 
 
@@ -153,10 +208,10 @@ namespace Chess
             CurrentCheckedTeam = PieceTeam.None;
 
             allPossibleMovements.Clear();
-            foreach (BoardMovement movement in board.Pieces.SelectMany(piece => piece.GetAllLegalMovements()))
+            foreach (BoardMovement movement in Board.Pieces.SelectMany(piece => piece.GetAllLegalMovements()))
             {
                 allPossibleMovements.Add(movement, null);
-                PieceTeam checkResult = game.GetCheckResult(movement, board);
+                PieceTeam checkResult = ForGame.GetCheckResult(movement, Board);
                 if (checkResult != PieceTeam.None)
                 {
                     if (CurrentCheckedTeam == PieceTeam.None)
@@ -232,7 +287,7 @@ namespace Chess
 
         public Turn MakeCopy()
         {
-            return new Turn(game, board.MakeCopy(), Team, Number, LastMovement);
+            return new Turn(ForGame, Board.MakeCopy(), Team, Number, LastMovement);
         }
 
     }
