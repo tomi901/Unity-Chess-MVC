@@ -3,78 +3,81 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 
-[RequireComponent(typeof(RectTransform))]
-public class DraggableUIElement : UIBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+namespace Simius.UI
 {
-
-    [SerializeField]
-    private bool moveFromCenter = false;
-
-    private Vector3 beginDragDelta;
-
-    #region Events
-
-    [System.Serializable]
-    public class DragEvent : UnityEvent<PointerEventData> { }
-
-    [SerializeField]
-    private DragEvent onBeginDragEvent = default, onDragEvent = default, onEndDragEvent = default;
-
-    public event UnityAction<PointerEventData> OnBeginDragEvent
+    [RequireComponent(typeof(RectTransform))]
+    public class DraggableUIElement : UIBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        add => onBeginDragEvent.AddListener(value);
-        remove => onBeginDragEvent.RemoveListener(value);
-    }
 
-    public event UnityAction<PointerEventData> OnDragEvent
-    {
-        add => onDragEvent.AddListener(value);
-        remove => onDragEvent.RemoveListener(value);
-    }
+        [SerializeField]
+        private bool moveFromCenter = false;
 
-    public event UnityAction<PointerEventData> OnEndDragEvent
-    {
-        add => onEndDragEvent.AddListener(value);
-        remove => onEndDragEvent.RemoveListener(value);
-    }
+        private Vector3 beginDragDelta;
 
-    #endregion
+        #region Events
 
-    private RectTransform rectTransform;
-    public RectTransform RectTransform => rectTransform ?? (rectTransform = GetComponent<RectTransform>());
+        [System.Serializable]
+        public class DragEvent : UnityEvent<PointerEventData> { }
 
+        [SerializeField]
+        private DragEvent onBeginDragEvent = default, onDragEvent = default, onEndDragEvent = default;
 
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        if (GetWorldPosition(eventData.position, out Vector3 point))
+        public event UnityAction<PointerEventData> OnBeginDragEvent
         {
-            beginDragDelta = (point - RectTransform.position) * 0.5f;
+            add => onBeginDragEvent.AddListener(value);
+            remove => onBeginDragEvent.RemoveListener(value);
         }
 
-        onBeginDragEvent.Invoke(eventData);
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (GetWorldPosition(eventData.position, out Vector3 point))
+        public event UnityAction<PointerEventData> OnDragEvent
         {
-            if (!moveFromCenter) point -= beginDragDelta;
-
-            RectTransform.position = point;
+            add => onDragEvent.AddListener(value);
+            remove => onDragEvent.RemoveListener(value);
         }
 
-        onDragEvent.Invoke(eventData);
-    }
+        public event UnityAction<PointerEventData> OnEndDragEvent
+        {
+            add => onEndDragEvent.AddListener(value);
+            remove => onEndDragEvent.RemoveListener(value);
+        }
 
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        onEndDragEvent.Invoke(eventData);
-    }
+        #endregion
 
-    private bool GetWorldPosition(Vector2 screenPos, out Vector3 point)
-    {
-        return RectTransformUtility.ScreenPointToWorldPointInRectangle(RectTransform, 
-            screenPos, Camera.main, out point);
-    }
+        private RectTransform rectTransform;
+        public RectTransform RectTransform => rectTransform ?? (rectTransform = GetComponent<RectTransform>());
 
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            if (GetWorldPosition(eventData.position, out Vector3 point))
+            {
+                beginDragDelta = (point - RectTransform.position) * 0.5f;
+            }
+
+            onBeginDragEvent.Invoke(eventData);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (GetWorldPosition(eventData.position, out Vector3 point))
+            {
+                if (!moveFromCenter) point -= beginDragDelta;
+
+                RectTransform.position = point;
+            }
+
+            onDragEvent.Invoke(eventData);
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            onEndDragEvent.Invoke(eventData);
+        }
+
+        private bool GetWorldPosition(Vector2 screenPos, out Vector3 point)
+        {
+            return RectTransformUtility.ScreenPointToWorldPointInRectangle(RectTransform,
+                screenPos, Camera.main, out point);
+        }
+
+    }
 }

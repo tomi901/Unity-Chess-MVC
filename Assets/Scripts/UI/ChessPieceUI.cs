@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 using DG.Tweening;
 
+using Simius.UI;
+
 
 namespace Chess
 {

@@ -90,6 +90,11 @@ namespace Chess
             }
         }
 
+        public void UndoTurn()
+        {
+            Debug.Log("Undo.");
+        }
+
     }
 
 }
