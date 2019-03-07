@@ -35,6 +35,10 @@ namespace Chess
 
 
         public event EventHandler<Piece> OnPieceAdded = (o, e) => { };
+        /// <summary>
+        /// When the entire board changes, so we can delete and re-create all pieces in the view.
+        /// </summary>
+        public event EventHandler OnBoardChanged = (o, e) => { };
 
 
         public Board(BoardVector size)
@@ -64,6 +68,18 @@ namespace Chess
         }
 
 
+        public void SetBoard(Board board)
+        {
+            ClearAllPieces();
+            foreach (Piece piece in board.Pieces)
+            {
+                PlacePiece(piece.MakeCopy(), piece.Coordinates);
+            }
+
+            OnBoardChanged(this, EventArgs.Empty);
+        }
+
+
         public void PlacePiece(Piece piece, BoardVector position, bool checkEmptySpace = true)
         {
             if (checkEmptySpace && this[position].HasPiece)
@@ -75,6 +91,14 @@ namespace Chess
 
             this[position].CurrentPiece = piece;
             OnPieceAdded(this, piece);
+        }
+
+        private void ClearAllPieces()
+        {
+            foreach (Tile tile in tiles)
+            {
+                tile.ClearPiece();
+            }
         }
 
 

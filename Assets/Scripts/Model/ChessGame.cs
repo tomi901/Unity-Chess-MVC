@@ -41,7 +41,7 @@ namespace Chess
                 currentTurn.CacheCurrentPossibleMovements();
                 currentTurn.FilterCachedMovements();
 
-                currentTurn.OnNext += OnNextTurn;
+                currentTurn.OnChange += OnTurnChangeListener;
             }
         }
 
@@ -79,6 +79,8 @@ namespace Chess
 
         public bool CanDoMovementInCurrentTurn(BoardMovement movement) => currentTurn.CanDoMovement(movement);
 
+
+        public ICollection<BoardMovement> GetAllMovements() => currentTurn.AllPossibleMovements.Keys;
 
         public IEnumerable<BoardMovement> GetAllMovementsFromTileInCurrentTurn(BoardVector fromTile)
         {
@@ -129,9 +131,14 @@ namespace Chess
         }
 
 
-        private void OnNextTurn(object sender, EventArgs eventArgs)
+        public void UndoTurn() => CurrentTurn.Undo();
+
+
+        private void OnTurnChangeListener(object sender, EventArgs eventArgs)
         {
-            CurrentTurn.FilterCachedMovements();
+            if (!CurrentTurn.CachedMovementsAreFiltered)
+                CurrentTurn.FilterCachedMovements();
+
             OnTurnChange(sender, eventArgs);
 
             if (CurrentTurn.AllPossibleMovements.Count <= 0)

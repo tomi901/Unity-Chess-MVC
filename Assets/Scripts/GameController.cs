@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 using TMPro;
@@ -33,8 +34,8 @@ namespace Chess
 
                 game = value;
 
-                game.OnTurnChange += OnNextTurn;
-                game.OnGameEnded += OnGameEnded;
+                game.OnTurnChange += OnTurnChangeListener;
+                game.OnGameEnded += OnGameEndedListener;
 
                 UpdateTurnInfo();
             }
@@ -56,22 +57,45 @@ namespace Chess
 
         private void UpdateTurnInfo()
         {
-            turnText.text = $"Turn {game.CurrentTurnNumber}\n" +
-                $"Team {game.CurrentTurnTeam}\n" +
-                $"Check: {game.CurrentTurnCheck}\n" +
-                $"Filtered turns check: {game.CurrentTurn.FilteredNextTurnsCheck}\n"+
-                $"Move: {game.CurrentTurn.LastMovement}\n" +
-                $"Moved piece: {game.CurrentTurn.MovedPiece}\n" +
-                $"Captured piece: {game.CurrentTurn.CapturedPiece}\n" +
-                $"Draw movements: {game.CurrentTurnDrawMovements}";
+            System.Collections.Generic.IEnumerable<string> Info()
+            {
+                yield return $"Turn {game.CurrentTurnNumber}";
+                yield return $"Team {game.CurrentTurnTeam}";
+                yield return $"Check: {game.CurrentTurnCheck}";
+                yield return $"Filtered turns check: {game.CurrentTurn.FilteredNextTurnsCheck}";
+
+                yield return null;
+
+                yield return $"Move: {game.CurrentTurn.LastMovement}";
+                yield return $"Moved piece: {game.CurrentTurn.MovedPiece}";
+                yield return $"Captured piece: {game.CurrentTurn.CapturedPiece}";
+                yield return $"Draw movements: {game.CurrentTurnDrawMovements}";
+
+                yield return null;
+
+                yield return "Previous: " + (game.CurrentTurn.Previous != null ? 
+                    $"{game.CurrentTurn.Previous.Number} ({game.CurrentTurn.Previous.LastMovement})"
+                    : string.Empty);
+            }
+
+            turnText.text = string.Join("\n", Info());
         }
 
-        // Event listeners
 
-        private void OnNextTurn(object sender, EventArgs eventArgs) => UpdateTurnInfo();
+        public void UndoTurn()
+        {
+            Debug.Log($"Undoing movement {Game.CurrentTurn.LastMovement}...", this);
+            Game.UndoTurn();
+            UpdateTurnInfo();
+        }
 
 
-        private void OnGameEnded(object sender, EventArgs eventArgs)
+        #region Event listeners
+
+        private void OnTurnChangeListener(object sender, EventArgs eventArgs) => UpdateTurnInfo();
+
+
+        private void OnGameEndedListener(object sender, EventArgs eventArgs)
         {
             switch (Game.CurrentTurn.FilteredNextTurnsCheck)
             {
@@ -85,15 +109,12 @@ namespace Chess
                     Debug.Log("White wins!");
                     break;
                 default:
-                    Debug.LogWarning("Game ended (Unknow case).");
+                    Debug.LogWarning("Game ended (Unknown case).");
                     break;
             }
         }
 
-        public void UndoTurn()
-        {
-            Debug.Log("Undo.");
-        }
+        #endregion
 
     }
 

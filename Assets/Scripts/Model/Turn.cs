@@ -35,6 +35,15 @@ namespace Chess
         public Board Board { get; }
 
 
+        private Turn previous = null;
+        public Turn Previous { get => previous; private set => previous = value?.AsSimulated; }
+
+        public bool IsSimulated { get; } = false;
+
+        private Turn simulatedTurn = null;
+        public Turn AsSimulated => simulatedTurn ?? (simulatedTurn = (IsSimulated ? this : MakeCopy(true)));
+
+
         private readonly Dictionary<BoardMovement, Turn> allPossibleMovements = new Dictionary<BoardMovement, Turn>();
 
         private ReadOnlyDictionary<BoardMovement, Turn> allPossibleMovementsRo = null;
@@ -55,14 +64,14 @@ namespace Chess
         public IEnumerable<KeyValuePair<BoardMovement, Turn>> NextCalculatedTurnsMovements =>
             AllCalculatedTurns.SelectMany(turn => turn.AllPossibleMovements);
 
+        
+        public bool MovementsAreCached { get; private set; } = false;
 
-        private bool movementsAreCached = false, cachedMovementsAreFiltered = false;
-
-        public bool MovementsAreCached => movementsAreCached;
-        public bool CachedMovementsAreFiltered => movementsAreCached && cachedMovementsAreFiltered;
+        private bool cachedMovementsAreFiltered = false;
+        public bool CachedMovementsAreFiltered => MovementsAreCached && cachedMovementsAreFiltered;
 
 
-        public event EventHandler OnNext = (o, e) => { };
+        public event EventHandler OnChange = (o, e) => { };
 
 
         public Turn(ChessGame forGame, Board board, PieceTeam startingTeam)
@@ -75,11 +84,16 @@ namespace Chess
             this.Team = startingTeam;
         }
 
-        public Turn(ChessGame forGame, Board board, PieceTeam team, int number, BoardMovement? movement)
-            : this(forGame, board, team)
+        public Turn(Turn turn, bool simulated = false, BoardMovement? movement = null)
+            : this(turn.ForGame, turn.Board.MakeCopy(), turn.Team)
         {
-            this.Number = number;
-            this.LastMovement = movement;
+            Number = turn.Number;
+            SetTurnMovements(turn);
+
+            if (movement != null)
+                Next(movement.Value);
+
+            IsSimulated = simulated;
         }
 
 
@@ -134,6 +148,9 @@ namespace Chess
 
         public void Next(BoardMovement movement)
         {
+            if (IsSimulated)
+                throw new Exception("Cannot move with simulated turns.");
+
             MovedPiece = CapturedPiece = null;
 
             Board.DoMovement(movement);
@@ -146,60 +163,77 @@ namespace Chess
             // Check for draw
             if (ForGame.UseDrawMovements)
             {
-                if (DrawMovementTurn)
-                    DrawMovements++;
-                else
-                    DrawMovements = 0;
+                DrawMovements = DrawMovementTurn ? DrawMovements + 1 : 0;
 
                 if (DrawMovements >= ForGame.DrawMovementsQuantity)
                 {
                     allPossibleMovements.Clear();
                     removedMovements.Clear();
 
-                    OnNext(this, EventArgs.Empty);
+                    OnChange(this, EventArgs.Empty);
                     return;
                 }
             }
 
-            movementsAreCached = cachedMovementsAreFiltered = false;
+            MovementsAreCached = cachedMovementsAreFiltered = false;
 
             // Cache all the movements, but first try to find if the next turn is in the current cache
             // and copy it's movements
             if (allPossibleMovements.TryGetValue(movement, out Turn next) && next != null)
             {
-                CopyTurn(next);
+                SetTurnMovements(next);
             }
             else CacheCurrentPossibleMovements();
 
-            OnNext(this, EventArgs.Empty);
+            OnChange(this, EventArgs.Empty);
         }
 
 
-        private void CopyTurn(Turn turnToCopy)
+        public void Undo()
         {
+            if (Previous != null)
+                SetTurn(Previous);
+        }
+
+        public void SetTurn(Turn turn)
+        {
+            SetTurnMovements(turn);
+
+            Number = turn.Number;
+            Team = turn.Team;
+
+            Board.SetBoard(turn.Board);
+
+            OnChange(this, EventArgs.Empty);
+        }
+
+
+        public void SetTurnMovements(Turn turn)
+        {
+            LastMovement = turn.LastMovement;
+
             allPossibleMovements.Clear();
-            foreach (var kvp in turnToCopy.allPossibleMovements)
+            foreach (var kvp in turn.allPossibleMovements)
             {
                 allPossibleMovements.Add(kvp.Key, kvp.Value);
             }
 
             removedMovements.Clear();
-            foreach (var kvp in turnToCopy.removedMovements)
+            foreach (var kvp in turn.removedMovements)
             {
                 removedMovements.Add(kvp.Key, kvp.Value);
             }
 
-            movementsAreCached = turnToCopy.movementsAreCached;
-            cachedMovementsAreFiltered = turnToCopy.cachedMovementsAreFiltered;
+            MovementsAreCached = turn.MovementsAreCached;
+            cachedMovementsAreFiltered = turn.cachedMovementsAreFiltered;
 
-            Number = turnToCopy.Number;
-            LastMovement = turnToCopy.LastMovement;
+            CurrentCheckedTeam = turn.CurrentCheckedTeam;
+            FilteredNextTurnsCheck = turn.FilteredNextTurnsCheck;
 
-            CurrentCheckedTeam = turnToCopy.CurrentCheckedTeam;
-            FilteredNextTurnsCheck = turnToCopy.FilteredNextTurnsCheck;
+            MovedPiece = turn.MovedPiece;
+            CapturedPiece = turn.CapturedPiece;
 
-            MovedPiece = turnToCopy.MovedPiece;
-            CapturedPiece = turnToCopy.CapturedPiece;
+            Previous = turn.Previous;
         }
 
 
@@ -225,14 +259,14 @@ namespace Chess
                 }
             }
 
-            movementsAreCached = true;
+            MovementsAreCached = true;
             cachedMovementsAreFiltered = false;
         }
 
 
         public void FilterCachedMovements()
         {
-            if (!movementsAreCached)
+            if (!MovementsAreCached)
             {
                 throw new Exception("Cannot filter current possible movements, must cache them first." +
                     $" ({nameof(CacheCurrentPossibleMovements)})");
@@ -248,14 +282,19 @@ namespace Chess
                 turnsToModify.Clear();
                 foreach (KeyValuePair<BoardMovement, Turn> kvp in allPossibleMovements.Where(kvp => kvp.Value == null))
                 {
-                    Turn simulatedTurn = this.MakeCopy();
-                    simulatedTurn.Next(kvp.Key);
+                    Turn simulatedTurn = this.MakeCopy(true, kvp.Key);
+                    simulatedTurn.Previous = this;
+
+                    if (!simulatedTurn.IsSimulated || !simulatedTurn.previous.IsSimulated)
+                        throw new Exception();
+
                     turnsToModify.Add(new KeyValuePair<BoardMovement, Turn>(kvp.Key, simulatedTurn));
                 }
                 turnsToModify.ForEach(kvp => allPossibleMovements[kvp.Key] = kvp.Value);
             }
 
             SimulateTurns();
+
 
             // Add extra movements and resimulate them
 
@@ -264,6 +303,7 @@ namespace Chess
                 allPossibleMovements.Add(extraMovement, null);
             }
             SimulateTurns();
+
 
             // Then filter all the possible movements
 
@@ -285,9 +325,9 @@ namespace Chess
         }
 
 
-        public Turn MakeCopy()
+        public Turn MakeCopy(bool simulated, BoardMovement? doMovement = null)
         {
-            return new Turn(ForGame, Board.MakeCopy(), Team, Number, LastMovement);
+            return new Turn(this, simulated, doMovement);
         }
 
     }

@@ -90,6 +90,7 @@ namespace Chess
                 SetPieces(model.Pieces);
 
                 model.OnPieceAdded += OnPieceAddedListener;
+                model.OnBoardChanged += OnBoardChangeListener;
             }
         }
 
@@ -121,6 +122,13 @@ namespace Chess
                     }
                 }
             }
+        }
+
+
+        public void Refresh()
+        {
+            ClearPieces();
+            SetPieces(Model.Pieces);
         }
 
 
@@ -232,10 +240,9 @@ namespace Chess
 
         #region Event Listeners
 
-        private void OnPieceAddedListener(object sender, Piece piece)
-        {
-            AddPiece(piece);
-        }
+        private void OnPieceAddedListener(object sender, Piece piece) => AddPiece(piece);
+
+        private void OnBoardChangeListener(object sender, System.EventArgs args) => Refresh();
 
         #endregion
 
