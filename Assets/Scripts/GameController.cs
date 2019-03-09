@@ -88,7 +88,6 @@ namespace Chess
             {
                 Debug.Log($"Undoing movement {Game.CurrentTurn.LastMovement}...", this);
                 Game.UndoTurn();
-                UpdateTurnInfo();
             }
         }
 
