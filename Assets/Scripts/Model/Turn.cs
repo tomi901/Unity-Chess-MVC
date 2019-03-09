@@ -37,6 +37,7 @@ namespace Chess
 
         private Turn previous = null;
         public Turn Previous { get => previous; private set => previous = value?.AsSimulated; }
+        public bool HasPrevious => Previous != null;
 
         public bool IsSimulated { get; } = false;
 
@@ -192,7 +193,7 @@ namespace Chess
 
         public void Undo()
         {
-            if (Previous != null)
+            if (HasPrevious)
                 SetTurn(Previous);
         }
 

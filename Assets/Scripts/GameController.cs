@@ -84,9 +84,12 @@ namespace Chess
 
         public void UndoTurn()
         {
-            Debug.Log($"Undoing movement {Game.CurrentTurn.LastMovement}...", this);
-            Game.UndoTurn();
-            UpdateTurnInfo();
+            if (Game.CanUndoTurn)
+            {
+                Debug.Log($"Undoing movement {Game.CurrentTurn.LastMovement}...", this);
+                Game.UndoTurn();
+                UpdateTurnInfo();
+            }
         }
 
 

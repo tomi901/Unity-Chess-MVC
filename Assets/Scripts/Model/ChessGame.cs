@@ -52,6 +52,8 @@ namespace Chess
 
         public int CurrentTurnDrawMovements => currentTurn.DrawMovements;
 
+        public bool CanUndoTurn => currentTurn.HasPrevious;
+
 
         public Board Board => CurrentTurn.Board;
 
