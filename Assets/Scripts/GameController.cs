@@ -41,6 +41,8 @@ namespace Chess
             }
         }
 
+        public bool CanUndoTurn => Game.CanUndoTurn;
+
 
         private void Start()
         {
@@ -84,7 +86,7 @@ namespace Chess
 
         public void UndoTurn()
         {
-            if (Game.CanUndoTurn)
+            if (CanUndoTurn)
             {
                 Debug.Log($"Undoing movement {Game.CurrentTurn.LastMovement}...", this);
                 Game.UndoTurn();
