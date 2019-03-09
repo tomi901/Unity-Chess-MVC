@@ -6,8 +6,11 @@ namespace Chess
 {
     public class PieceKing : Piece
     {
-
         public const int CastlingDistance = 2;
+
+
+        public bool Checked => CurrentTurn.TeamIsChecked(Team);
+
 
         protected override IEnumerable<BoardMovement> GetAllPosibleRelativeMovements(Board board)
         {
@@ -23,7 +26,7 @@ namespace Chess
         protected override IEnumerable<BoardMovement> GetAllExtraRelativeMovements(Board board)
         {
             // Castling
-            if (Rank == 1 && !HasMoved)
+            if (Rank == 1 && !HasMoved && !Checked)
             {
                 var nextMovements = new HashSet<BoardVector>(CurrentTurn.NextCalculatedTurnsMovements
                     .Select(kvp => kvp.Key.to));
@@ -45,14 +48,12 @@ namespace Chess
 
         protected override void OnMovementDone(BoardVector deltaMovement)
         {
-            if (MovementsDone >= 50)
-            {
-                // Tie
-            }
-
             // After castling
             if (Math.Abs(deltaMovement.horizontal) == CastlingDistance)
             {
+                if (Checked)
+                    throw new Exception("Castling invalid, king checked.");
+
                 Piece castlingRook = ContainingBoard.Raycast(Coordinates, deltaMovement) as PieceRook;
                 if (castlingRook == null)
                     throw new Exception("Castling invalid, no rook found.");
