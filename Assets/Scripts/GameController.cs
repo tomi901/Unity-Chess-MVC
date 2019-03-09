@@ -99,21 +99,7 @@ namespace Chess
 
         private void OnGameEndedListener(object sender, EventArgs eventArgs)
         {
-            switch (Game.CurrentTurn.FilteredNextTurnsCheck)
-            {
-                case PieceTeam.None:
-                    Debug.Log("Tie.");
-                    break;
-                case PieceTeam.White:
-                    Debug.Log("Black wins!");
-                    break;
-                case PieceTeam.Black:
-                    Debug.Log("White wins!");
-                    break;
-                default:
-                    Debug.LogWarning("Game ended (Unknown case).");
-                    break;
-            }
+            Debug.Log(Game.CurrentWinner != PieceTeam.None ? $"{Game.CurrentWinner} team wins!" : "Tie.", this);
         }
 
         #endregion

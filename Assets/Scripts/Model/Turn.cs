@@ -18,6 +18,25 @@ namespace Chess
         public PieceTeam FilteredNextTurnsCheck { get; private set; }
         public bool IsAnyFilteredTurnChecked => FilteredNextTurnsCheck != PieceTeam.None;
 
+        public PieceTeam WinnerTeam
+        {
+            get
+            {
+                if (HasMovementsLeft) return PieceTeam.None;
+
+                switch (FilteredNextTurnsCheck)
+                {
+                    case PieceTeam.White:
+                        return PieceTeam.Black;
+                    case PieceTeam.Black:
+                        return PieceTeam.White;
+                    case PieceTeam.None:
+                    default:
+                        return PieceTeam.None;
+                }
+            }
+        }
+
 
         public Piece MovedPiece { get; private set; }
 
@@ -50,6 +69,8 @@ namespace Chess
         private ReadOnlyDictionary<BoardMovement, Turn> allPossibleMovementsRo = null;
         public ReadOnlyDictionary<BoardMovement, Turn> AllPossibleMovements => allPossibleMovementsRo ??
             (allPossibleMovementsRo = new ReadOnlyDictionary<BoardMovement, Turn>(allPossibleMovements));
+
+        public bool HasMovementsLeft => allPossibleMovements.Count > 0;
 
 
         private readonly Dictionary<BoardMovement, Turn> removedMovements = new Dictionary<BoardMovement, Turn>();

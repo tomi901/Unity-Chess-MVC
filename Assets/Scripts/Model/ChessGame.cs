@@ -45,14 +45,16 @@ namespace Chess
             }
         }
 
-        public int CurrentTurnNumber => currentTurn.Number;
-        public PieceTeam CurrentTurnTeam => currentTurn.Team;
+        public int CurrentTurnNumber => CurrentTurn.Number;
+        public PieceTeam CurrentTurnTeam => CurrentTurn.Team;
 
-        public PieceTeam CurrentTurnCheck => currentTurn.CurrentCheckedTeam;
+        public int CurrentTurnDrawMovements => CurrentTurn.DrawMovements;
 
-        public int CurrentTurnDrawMovements => currentTurn.DrawMovements;
+        public bool CanUndoTurn => CurrentTurn.HasPrevious;
 
-        public bool CanUndoTurn => currentTurn.HasPrevious;
+        public PieceTeam CurrentTurnCheck => CurrentTurn.CurrentCheckedTeam;
+        public PieceTeam NextTurnsCheck => CurrentTurn.FilteredNextTurnsCheck;
+        public PieceTeam CurrentWinner => CurrentTurn.WinnerTeam;
 
 
         public Board Board => CurrentTurn.Board;
@@ -143,7 +145,7 @@ namespace Chess
 
             OnTurnChange(sender, eventArgs);
 
-            if (CurrentTurn.AllPossibleMovements.Count <= 0)
+            if (!CurrentTurn.HasMovementsLeft)
             {
                 // Current team loses
                 OnGameEnded(this, EventArgs.Empty);
