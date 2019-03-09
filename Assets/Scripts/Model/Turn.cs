@@ -151,6 +151,7 @@ namespace Chess
             if (IsSimulated)
                 throw new Exception("Cannot move with simulated turns.");
 
+            simulatedTurn = null;
             MovedPiece = CapturedPiece = null;
 
             Board.DoMovement(movement);
@@ -202,6 +203,8 @@ namespace Chess
             Number = turn.Number;
             Team = turn.Team;
 
+            simulatedTurn = turn.AsSimulated;
+
             Board.SetBoard(turn.Board);
 
             OnChange(this, EventArgs.Empty);
@@ -232,6 +235,8 @@ namespace Chess
 
             MovedPiece = turn.MovedPiece;
             CapturedPiece = turn.CapturedPiece;
+
+            DrawMovements = turn.DrawMovements;
 
             Previous = turn.Previous;
         }

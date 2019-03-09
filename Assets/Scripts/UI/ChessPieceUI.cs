@@ -34,14 +34,24 @@ namespace Chess
             get => model;
             set
             {
+                if (value == model) return;
+
+                if (model != null)
+                {
+                    model.OnCoordinatesChanged -= OnMoveToEventListener;
+                    model.OnCapture -= OnCaptureEventListener;
+                }
+
                 model = value;
 
-                Team = value.Team;
+                if (model != null)
+                {
+                    UpdateSprite();
+                    UpdatePosition();
 
-                UpdatePosition();
-
-                model.OnCoordinatesChanged += OnMoveToEventListener;
-                model.OnCapture += OnCaptureEventListener;
+                    model.OnCoordinatesChanged += OnMoveToEventListener;
+                    model.OnCapture += OnCaptureEventListener;
+                }
             }
         }
 
@@ -59,20 +69,7 @@ namespace Chess
         }
 
         public BoardVector Position => model.Coordinates;
-        public Vector2 TargetPosition => board.GetAnchoredPositionForTile(Position);
-
-        private PieceTeam pieceTeam = PieceTeam.None;
-        public PieceTeam Team
-        {
-            get => pieceTeam;
-            set
-            {
-                if (value == pieceTeam) return;
-
-                pieceTeam = value;
-                UpdateSprite();
-            }
-        }
+        public Vector2 TargetAnchoredPosition => board.GetAnchoredPositionForTile(Position);
 
         private void UpdateSprite() => image.sprite = ChessResources.GetSprite(model);
 
@@ -80,13 +77,15 @@ namespace Chess
         {
             if (board == null) return;
 
-            currentTileAnchoredPosition = image.rectTransform.anchoredPosition = TargetPosition;
+            currentTileAnchoredPosition = image.rectTransform.anchoredPosition = TargetAnchoredPosition;
         }
 
         private void OnDestroy()
         {
             CompleteCurrentTween();
             OnObjectDestroy();
+
+            Model = null;
         }
 
         private void CompleteCurrentTween()
@@ -100,7 +99,7 @@ namespace Chess
 
         private void OnMoveToEventListener(object sender, PieceMovementArgs args)
         {
-            currentTileAnchoredPosition = TargetPosition;
+            currentTileAnchoredPosition = TargetAnchoredPosition;
 
             if (DoAnimations)
             {

@@ -49,7 +49,6 @@ namespace Chess
 
 
         public event EventHandler<PieceMovementArgs> OnCoordinatesChanged = (o, e) => { };
-        public event EventHandler<PieceSetTargetMovementArgs> OnMovementTargetSet = (o, e) => { };
         public event EventHandler OnCapture = (o, e) => { };
 
 
