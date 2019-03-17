@@ -54,6 +54,8 @@ namespace Chess
 
         public PieceTeam CurrentTurnCheck => CurrentTurn.CurrentCheckedTeam;
         public PieceTeam NextTurnsCheck => CurrentTurn.FilteredNextTurnsCheck;
+
+        public bool Ended => !CurrentTurn.HasMovementsLeft;
         public PieceTeam CurrentWinner => CurrentTurn.WinnerTeam;
 
 
@@ -145,7 +147,7 @@ namespace Chess
 
             OnTurnChange(sender, eventArgs);
 
-            if (!CurrentTurn.HasMovementsLeft)
+            if (Ended)
             {
                 // Current team loses
                 OnGameEnded(this, EventArgs.Empty);
