@@ -3,7 +3,14 @@
 
 namespace Chess.Player
 {
-    public class Player
+    public interface IPlayer
+    {
+        PieceTeam Team { get; }
+
+        event EventHandler<BoardMovement> OnMovementDecided;
+    }
+
+    public class Player : IPlayer
     {
         public ChessGame Game { get; }
         public PieceTeam Team { get; }
