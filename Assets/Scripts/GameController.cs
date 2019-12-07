@@ -14,6 +14,16 @@ namespace Chess
         [SerializeField]
         private ChessBoardUI board = default;
 
+
+        [Header("Players")]
+
+        [SerializeField]
+        private PlayerController whitePlayer = default;
+
+        [SerializeField]
+        private PlayerController blackPlayer = default;
+
+
         [Header("UI")]
 
         [SerializeField]
@@ -54,6 +64,15 @@ namespace Chess
         {
             Game = ChessGame.StartNew();
             board.GameController = this;
+
+            InitializePlayer(whitePlayer, PieceTeam.White);
+            InitializePlayer(blackPlayer, PieceTeam.Black);
+        }
+
+        private void InitializePlayer(PlayerController player, PieceTeam team)
+        {
+            player.Initialize(Game, team);
+            Game.ListenToPlayer(player);
         }
 
 
