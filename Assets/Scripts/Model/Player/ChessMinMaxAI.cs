@@ -2,9 +2,9 @@
 using System.Linq;
 
 
-namespace Chess.AI
+namespace Chess.Player.AI
 {
-    public class ChessMinMaxAI : Player.Player
+    public class ChessMinMaxAI : ChessAI
     {
         public ChessMinMaxAI(ChessGame game, PieceTeam team) : base(game, team)
         {
