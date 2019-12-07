@@ -628,7 +628,8 @@ MonoBehaviour:
   board: {fileID: 1777983566}
   whitePlayer: {fileID: 1986583012}
   blackPlayer: {fileID: 1890478016}
-  turnText: {fileID: 1927290845}
+  infoText: {fileID: 1927290845}
+  infoLevel: 0
   pieceSelectionPanel: {fileID: 1193268303}
 --- !u!4 &1558907289
 Transform:
@@ -780,12 +781,12 @@ GameObject:
   - component: {fileID: 1927290846}
   - component: {fileID: 1927290845}
   m_Layer: 5
-  m_Name: Debug Text
+  m_Name: Info Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1927290845
 MonoBehaviour:
   m_ObjectHideFlags: 0

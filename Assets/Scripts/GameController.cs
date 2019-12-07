@@ -10,6 +10,7 @@ namespace Chess
 
     public class GameController : MonoBehaviour
     {
+        private enum InfoLevel { Basic, Debug }
 
         [SerializeField]
         private ChessBoardUI board = default;
@@ -27,7 +28,12 @@ namespace Chess
         [Header("UI")]
 
         [SerializeField]
-        private TextMeshProUGUI turnText = default;
+        private TextMeshProUGUI infoText = default;
+
+        [SerializeField]
+        private InfoLevel infoLevel = default;
+
+        [Space]
 
         [SerializeField]
         private PieceSelectionPanel pieceSelectionPanel = default;
@@ -80,26 +86,50 @@ namespace Chess
         {
             System.Collections.Generic.IEnumerable<string> Info()
             {
-                yield return $"Turn {game.CurrentTurnNumber}";
-                yield return $"Team {game.CurrentTurnTeam}";
-                yield return $"Check: {game.CurrentTurnCheck}";
-                yield return $"Filtered turns check: {game.CurrentTurn.FilteredNextTurnsCheck}";
+                switch (infoLevel)
+                {
+                    case InfoLevel.Basic:
+                        yield return $"Turn {game.CurrentTurnNumber}";
+                        yield return $"Team {game.CurrentTurnTeam} Turn";
 
-                yield return null;
+                        if (game.Ended)
+                        {
+                            yield return null;
+                            yield return game.CurrentWinner != PieceTeam.None ?
+                                $"<size=200%>{game.CurrentWinner} Wins!</size>" :
+                                $"<size=200%>Stalemate!</size>";
+                        }
+                        else if (game.NextTurnsCheck != PieceTeam.None)
+                        {
+                            yield return null;
+                            yield return $"<size=150%>Check!</size>";
+                        }
 
-                yield return $"Move: {game.CurrentTurn.LastMovement}";
-                yield return $"Moved piece: {game.CurrentTurn.MovedPiece}";
-                yield return $"Captured piece: {game.CurrentTurn.CapturedPiece}";
-                yield return $"Draw movements: {game.CurrentTurnDrawMovements}";
+                        break;
+                    case InfoLevel.Debug:
+                        yield return $"Turn {game.CurrentTurnNumber}";
+                        yield return $"Team {game.CurrentTurnTeam}";
+                        yield return $"Check: {game.CurrentTurnCheck}";
+                        yield return $"Filtered turns check: {game.CurrentTurn.FilteredNextTurnsCheck}";
 
-                yield return null;
+                        yield return null;
 
-                yield return "Previous: " + (game.CurrentTurn.Previous != null ? 
-                    $"{game.CurrentTurn.Previous.Number} ({game.CurrentTurn.Previous.LastMovement})"
-                    : string.Empty);
+                        yield return $"Move: {game.CurrentTurn.LastMovement}";
+                        yield return $"Moved piece: {game.CurrentTurn.MovedPiece}";
+                        yield return $"Captured piece: {game.CurrentTurn.CapturedPiece}";
+                        yield return $"Draw movements: {game.CurrentTurnDrawMovements}";
+
+                        yield return null;
+
+                        yield return "Previous: " + (game.CurrentTurn.Previous != null ?
+                            $"{game.CurrentTurn.Previous.Number} ({game.CurrentTurn.Previous.LastMovement})"
+                            : string.Empty);
+                        break;
+                }
+
             }
 
-            turnText.text = string.Join("\n", Info());
+            infoText.text = string.Join("\n", Info());
         }
 
 
