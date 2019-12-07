@@ -16,7 +16,7 @@ namespace Chess
 
         public PieceTeam Team { get; private set; } = default;
 
-        public event EventHandler<BoardMovement> OnMovementDecided = (s, e) => { };
+        public event EventHandler<BoardMovement> OnMovementDecided;
 
 
         public void Initialize(ChessGame game, PieceTeam team)
@@ -28,11 +28,17 @@ namespace Chess
                     break;
                 case Type.MinMax:
                     playerModel = new Player.AI.ChessMinMaxAI(game, team);
-                    playerModel.OnMovementDecided += OnMovementDecided;
+                    playerModel.OnMovementDecided += OnDecideMovement;
                     break;
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        private void OnDecideMovement(object sender, BoardMovement movement)
+        {
+            // Debug.Log($"{sender}: {movement}");
+            OnMovementDecided?.Invoke(this, movement);
         }
     }
 }
