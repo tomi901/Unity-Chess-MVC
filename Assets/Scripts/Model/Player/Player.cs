@@ -44,7 +44,7 @@ namespace Chess.Player
         {
             if (!IsInTurn) return;
 
-            OnMovementDecided.Invoke(this, movement);
+            OnMovementDecided?.Invoke(this, movement);
         }
     }
 }

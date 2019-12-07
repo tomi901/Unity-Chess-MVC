@@ -83,6 +83,18 @@ namespace Chess
         }
 
 
+
+        public void ListenToPlayer(Player.IPlayer player)
+        {
+            player.OnMovementDecided += OnPlayerMovementDecided;
+        }
+
+        private void OnPlayerMovementDecided(object sender, BoardMovement movement)
+        {
+            TryToDoMovement(movement);
+        }
+
+
         public bool CanDoMovementInCurrentTurn(BoardMovement movement) => currentTurn.CanDoMovement(movement);
 
 
