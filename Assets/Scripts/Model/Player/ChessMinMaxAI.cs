@@ -7,10 +7,13 @@ namespace Chess.Player.AI
 {
     public class ChessMinMaxAI : ChessAI
     {
+        private delegate void MinMaxCalculation(int evaluation, ref int maxCalculation);
+
+
         public int MaxTurnsDepth { get; } = 10;
 
 
-        private Dictionary<Turn, int> cachedScores = new Dictionary<Turn, int>();
+        private readonly List<BoardMovement> chosenMovements = new List<BoardMovement>();
 
 
         public ChessMinMaxAI(ChessGame game, PieceTeam team, int maxTurnsDepth = 10) : base(game, team)
@@ -21,14 +24,16 @@ namespace Chess.Player.AI
 
         protected override void OnTurnStart()
         {
-            BoardMovement[] movements = Game.CurrentTurn.AllPossibleMovements.Keys.ToArray();
-            DoMovement(movements[RNG.Next(movements.Length)]);
+            List<BoardMovement> movements = chosenMovements;
+            StartMinMax(CurrentTurn, 3);
+            DoMovement(movements[RNG.Next(movements.Count)]);
         }
 
 
         public int StartMinMax(Turn fromTurn, int depth, bool maximizing = true)
         {
-            return MinMax(fromTurn, depth, int.MinValue, int.MaxValue, maximizing);
+            chosenMovements.Clear();
+            return MinMax(fromTurn, depth, int.MinValue, int.MaxValue, maximizing, chosenMovements);
         }
 
         /// <summary>
@@ -40,19 +45,49 @@ namespace Chess.Player.AI
         /// <param name="beta"></param>
         /// <param name="maximizing"></param>
         /// <returns></returns>
-        public int MinMax(Turn turn, int depth, int alpha, int beta, bool maximizing)
+        public int MinMax(Turn turn, int depth, int alpha, int beta, bool maximizing,
+            List<BoardMovement> appendMovements = null)
         {
             if (depth == 0 || !turn.HasMovementsLeft)
                 return EvaluateTurn(turn);
 
             turn.CacheCurrentPossibleMovements();
+            turn.FilterCachedMovements();
+
+            /*
+            MinMaxCalculation calculation = maximizing ? (MinMaxCalculation)
+            ((int evaluation, ref int maxEvaluation) =>
+            {
+                maxEvaluation = Math.Max(maxEvaluation, evaluation);
+                alpha = Math.Max(alpha, evaluation);
+            }) :
+            ((int evaluation, ref int minEvaluation) =>
+            {
+                minEvaluation = Math.Min(minEvaluation, evaluation);
+                beta = Math.Min(beta, evaluation);
+            });
+            */
+
+
             if (maximizing)
             {
                 int maxEvaluation = int.MinValue;
-                foreach (var movementTurn in turn.NextCalculatedTurnsMovements)
+                foreach (var movementTurn in turn.AllPossibleMovements)
                 {
                     int evaluation = MinMax(movementTurn.Value, depth - 1, alpha, beta, false);
-                    maxEvaluation = Math.Max(maxEvaluation, evaluation);
+
+                    if (evaluation > maxEvaluation)
+                    {
+                        maxEvaluation = evaluation;
+                        
+                        if (appendMovements != null)
+                        {
+                            if (evaluation > maxEvaluation)
+                                chosenMovements.Clear();
+
+                            chosenMovements.Add(movementTurn.Key);
+                        }
+                    }
                     alpha = Math.Max(alpha, evaluation);
                     if (beta <= alpha)
                         break;
@@ -62,10 +97,22 @@ namespace Chess.Player.AI
             else
             {
                 int minEvaluation = int.MaxValue;
-                foreach (var movementTurn in turn.NextCalculatedTurnsMovements)
+                foreach (var movementTurn in turn.AllPossibleMovements)
                 {
                     int evaluation = MinMax(movementTurn.Value, depth - 1, alpha, beta, true);
-                    minEvaluation = Math.Min(minEvaluation, evaluation);
+
+                    if (evaluation <= minEvaluation)
+                    {
+                        minEvaluation = evaluation;
+
+                        if (appendMovements != null)
+                        {
+                            if (evaluation < minEvaluation)
+                                chosenMovements.Clear();
+
+                            chosenMovements.Add(movementTurn.Key);
+                        }
+                    }
                     beta = Math.Min(beta, evaluation);
                     if (beta <= alpha)
                         break;
@@ -80,18 +127,7 @@ namespace Chess.Player.AI
         /// </summary>
         /// <param name="turn"></param>
         /// <returns></returns>
-        public int EvaluateTurn(Turn turn)
-        {
-            if (cachedScores.TryGetValue(turn, out int score))
-            {
-                return score;
-            }
-
-            // Get the sum of the pieces values
-            score = turn.Board.Pieces.Sum(GetPieceValue);
-            cachedScores.Add(turn, score);
-            return score;
-        }
+        public int EvaluateTurn(Turn turn) => turn.Board.Pieces.Sum(GetPieceValue); // Get the sum of the pieces values
 
         public int GetPieceValue(Piece piece)
         {

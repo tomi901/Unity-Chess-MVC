@@ -13,6 +13,8 @@ namespace Chess.Player
     public class Player : IPlayer
     {
         public ChessGame Game { get; }
+        public Turn CurrentTurn => Game.CurrentTurn;
+
         public PieceTeam Team { get; }
 
         public bool IsInTurn => !Game.Ended && (Game.CurrentTurnTeam == Team);
