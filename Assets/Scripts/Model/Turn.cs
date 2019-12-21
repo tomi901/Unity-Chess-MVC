@@ -299,6 +299,9 @@ namespace Chess
                     $" ({nameof(CacheCurrentPossibleMovements)})");
             }
 
+            if (cachedMovementsAreFiltered)
+                return;
+
 
             // First simulate all the possible turns
 
