@@ -90,6 +90,9 @@ namespace Chess
                 {
                     case InfoLevel.Basic:
                         yield return $"Turn {game.CurrentTurnNumber}";
+                        yield return "Last Movement: " + (game.CurrentTurn.Previous != null ?
+                            game.CurrentTurn.Previous.LastMovement.ToString()
+                            : string.Empty);
                         yield return $"Team {game.CurrentTurnTeam} Turn";
 
                         if (game.Ended)
