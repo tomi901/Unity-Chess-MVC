@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 
 namespace Chess.Player.AI
@@ -11,22 +12,31 @@ namespace Chess.Player.AI
 
 
         public int MaxTurnsDepth { get; } = 10;
+        public float MaxCalculationTime { get; } = 5;
 
 
         private readonly List<BoardMovement> chosenMovements = new List<BoardMovement>();
 
 
-        public ChessMinMaxAI(ChessGame game, PieceTeam team, int maxTurnsDepth = 10) : base(game, team)
+        public ChessMinMaxAI(ChessGame game, PieceTeam team, int maxTurnsDepth = 3, float maxCalculationTime = 5f)
+            : base(game, team)
         {
             MaxTurnsDepth = maxTurnsDepth;
+            MaxCalculationTime = maxCalculationTime;
         }
 
 
-        protected override void OnTurnStart()
+        protected override async void OnTurnStart()
         {
-            List<BoardMovement> movements = chosenMovements;
-            StartMinMax(CurrentTurn, 3);
-            DoMovement(movements[RNG.Next(movements.Count)]);
+            Task timeout = Task.Delay(TimeSpan.FromSeconds(MaxCalculationTime));
+            // Asynchronously calculate the movement, with a timeout
+            Task completedTask = await Task.WhenAny(Task.Run(() => StartMinMax(CurrentTurn, MaxTurnsDepth)), timeout);
+
+            if (chosenMovements.Count <= 0)
+            {
+                chosenMovements.AddRange(CurrentTurn.AllPossibleMovements.Keys);
+            }
+            DoMovement(chosenMovements[RNG.Next(chosenMovements.Count)]);
         }
 
 
@@ -76,7 +86,7 @@ namespace Chess.Player.AI
                 {
                     int evaluation = MinMax(movementTurn.Value, depth - 1, alpha, beta, false);
 
-                    if (evaluation > maxEvaluation)
+                    if (evaluation >= maxEvaluation)
                     {
                         maxEvaluation = evaluation;
                         
